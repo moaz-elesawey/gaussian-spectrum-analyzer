@@ -59,17 +59,17 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.ax.set_xlim((-300, 4200))
         self.draw()
 
-    def removeBroadening(self):
+    def removeBroadening(self, p):
         if len(self.ints) == 0: return
         if self._broaden:
             l = self._broaden.pop(0)
             l.remove()
-            self.ax.set_ylim([-2, max(self.ints)])
+            self.ax.set_ylim(p.ylim)
         self.draw()
 
 
-    def applyBroadening(self, sigma=40):
-        self.removeBroadening()
+    def applyBroadening(self, p, sigma=40):
+        self.removeBroadening(p)
         if len(self.ints) == 0: return
 
         x= np.linspace(-250, 4100, num=1000, endpoint=True)
@@ -81,16 +81,42 @@ class SpectrumGraph(FigureCanvasQTAgg):
         
         gInts = np.array(gInts)
         gInts = (gInts/gInts.max())*100
-        self._broaden = self.ax.plot(x, gInts, color='#555555', linestyle='-', linewidth=1.2, label='Smoothed Data')
-        self.ax.set_ylim([-2, max(gInts)])
+        self._broaden = self.ax.plot(x, gInts, color=p.broaden_color, linestyle=p.broaden_style, 
+                linewidth=p.broaden_width, label='Smoothed Data')
+        
+        self.ax.set_ylim(p.ylim)
+
         self.draw()
 
 
-    def togglePeaks(self, state):
+    def togglePeaks(self, state, color):
         if not state:
             if not self.peaks_plot: return
-            self.peaks_plot.set_color('k')
+            self.peaks_plot.set_color(color)
             self.draw()
             return
         self.peaks_plot.set_color('#FFFFFF')
         self.draw()
+
+
+class Properties:
+    def __init__(self):
+        self.xlabel          = ''
+        self.ylabel          = ''
+        self.title           = ''
+        self.broaden_color   = '#333333'
+        self.broaden_style   = '-'
+        self.broaden_width   = 1
+        self.spikes_color    = '#000000'
+        self.spikes_style    = '-'
+        self.spikes_width    = 1
+        self.xlim            = -250, 4200
+        self.ylim            = -2, 105
+        self.minor_ticks     = False
+        self.marker_color    = 'r'
+        self.figure_width    = 11.79
+        self.figure_height   = 4.27
+        self.padding_top     = 0.90
+        self.padding_bottom  = 0.13
+        self.padding_left    = 0.13
+        self.padding_right   = 0.98

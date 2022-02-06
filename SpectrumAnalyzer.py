@@ -6,7 +6,7 @@ from matplotlib import pyplot
 
 from ui.ui_main import Ui_SpectrumAnalyzer
 from ui.ui_style import Ui_StyleDialog
-from spectrum_graph import SpectrumGraph, Toolbar
+from spectrum_graph import Properties, SpectrumGraph, Toolbar
 from gaussian_parser import Parser
 from consts import EXPORT_FORMATS, LINESTYLES
 
@@ -34,9 +34,12 @@ class SpectrumAnalyzer(QDialog):
         )
         self.setWindowIcon(QIcon("icons/spectrum-icon.jpg"))
         self.setWindowTitle("Spectrum Analyzer")
+        self.setMinimumSize(1280, 750)
         self.resize(1280, 750)
 
         self.item_selected = False
+
+        self.p = Properties()
 
         self.x_signals = []
         self.y_signals = []
@@ -89,6 +92,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.spectrum_frame_layout.addWidget(self.spectrumGraph)
         self.ui.export_formats_select.addItems(EXPORT_FORMATS)
         self.style_dialog.line_shape_select.addItems(LINESTYLES)
+        self.style_dialog.spike_shape_select.addItems(LINESTYLES)
 
     def initActions(self):
         self.ui.broadening_check.toggled.connect(self.toggle_broadening)
@@ -104,6 +108,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.tight_graph_btn.clicked.connect(self.trigger_tight_layout)
         self.ui.broadening_btn.clicked.connect(
             lambda _: self.spectrumGraph.applyBroadening(
+                self.p,
                 float(self.ui.broadening_inp.text())
             )
         )
@@ -116,18 +121,34 @@ class SpectrumAnalyzer(QDialog):
         )
         self.ui.style_btn.clicked.connect(self.trigger_change_style)
 
+        self.style_dialog.line_color_pick.clicked.connect(lambda : self.trigger_pick_color('line'))
+        self.style_dialog.spike_color_pick.clicked.connect(lambda : self.trigger_pick_color('spike'))
+        self.style_dialog.marker_color_pick.clicked.connect(lambda : self.trigger_pick_color('marker'))
+
+        self.style_dialog.line_shape_select.currentIndexChanged.connect(
+            lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='line')
+        )
+        self.style_dialog.spike_shape_select.currentIndexChanged.connect(
+            lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='spike')
+        )
+
     # togglers
     def toggle_broadening(self, state):
-        
         self.ui.broadening_btn.setDisabled(not state)
         self.ui.broadening_inp.setDisabled(not state)
         self.ui.broadening_slider.setDisabled(not state)
         self.ui.broadening_select.setDisabled(not state)
         self.ui.label.setDisabled(not state)
+
+        if not self.spectrumGraph._broaden:
+            self.spectrumGraph.applyBroadening(self.p, self.ui.broadening_slider.value())
+
         if not state:
-            self.spectrumGraph.removeBroadening()
-            return
-        self.spectrumGraph.applyBroadening()
+            self.spectrumGraph.removeBroadening(self.p)
+        else:
+            self.spectrumGraph.applyBroadening(self.p)
+        self.spectrumGraph.draw()
+
         self.ui.broadening_inp.setText(str(self.ui.broadening_slider.value()))
 
     def toggle_scale_curve(self, state):
@@ -149,14 +170,14 @@ class SpectrumAnalyzer(QDialog):
         self.ui.scale_y_btn.setDisabled(not state)
 
     def toggle_hide_verticals(self, state):
-        self.spectrumGraph.togglePeaks(state)
+        self.spectrumGraph.togglePeaks(state, self.p.spikes_color)
 
     def trigger_tight_layout(self):
         self.spectrumGraph.fig.tight_layout()
         self.spectrumGraph.draw()
 
     def trigger_broadening_slider(self, broad):
-        self.spectrumGraph.applyBroadening(broad)
+        self.spectrumGraph.applyBroadening(self.p, broad)
         self.ui.broadening_inp.setText(str(broad))
 
     def trigger_spectrum_select(self, index):
@@ -177,7 +198,7 @@ class SpectrumAnalyzer(QDialog):
             self.spectrumGraph.fig.suptitle('IR Spectrum of #', fontsize=14)
         
         if self.ui.broadening_check.isChecked():
-            self.spectrumGraph.applyBroadening(self.ui.broadening_slider.value())
+            self.spectrumGraph.applyBroadening(self.p, self.ui.broadening_slider.value())
 
         self.spectrumGraph.draw()
 
@@ -196,12 +217,11 @@ class SpectrumAnalyzer(QDialog):
             self.ui.hide_verticals_check.setChecked(False)
             self.spectrumGraph.initStyle()
             self.item_selected = False
-            _title = "#"+filename.split('/')[-1]
+            _title = "#"+filename
             self.ui.loaded_file_name.setText(_title)
 
             if self.ui.broadening_check.isChecked():
-                self.spectrumGraph.applyBroadening(self.ui.broadening_slider.value())
-
+                self.spectrumGraph.applyBroadening(self.p, self.ui.broadening_slider.value())
 
     def trigger_save_figure(self, ext:str):
         if len(self.spectrumGraph.freq) != len(self.spectrumGraph.ints): return
@@ -212,21 +232,21 @@ class SpectrumAnalyzer(QDialog):
         
         fig, ax = pyplot.subplots(
             nrows=1, figsize=(
-                self.style_dialog.figure_width.value(),
-                self.style_dialog.figure_height.value(),
+                self.p.figure_width,
+                self.p.figure_height,
             )
         )
         fig.subplots_adjust(
-            top=self.style_dialog.padding_top.value(),
-            bottom=self.style_dialog.padding_bottom.value(),
-            left=self.style_dialog.padding_left.value(),
-            right=self.style_dialog.padding_right.value(),
+            top=self.p.padding_top,
+            bottom=self.p.padding_bottom,
+            left=self.p.padding_left,
+            right=self.p.padding_right,
         )
 
         if not self.ui.hide_verticals_check.isChecked():
             ax.vlines(
                 self.spectrumGraph.freq, ymin=0, ymax=self.spectrumGraph.ints,
-                colors='k', label='Intensity peaks' 
+                colors=self.p.spikes_color, label='Intensity peaks' 
             )
         if self.ui.broadening_check.isChecked():
             x, gInts = self.generate_broadening_for_export(
@@ -235,24 +255,24 @@ class SpectrumAnalyzer(QDialog):
                 self.spectrumGraph.ints
             )
             ax.plot(
-                x, gInts, color='#555555', 
-                linewidth=self.style_dialog.linewidth_inp.value(), 
-                linestyle=self.style_dialog.line_shape_select.currentText(),
+                x, gInts, color=self.p.broaden_color, 
+                linewidth=self.p.broaden_width, 
+                linestyle=self.p.broaden_style,
                 label='Gaussian Broaden'
             )
 
-        ax.set_xlim([self.style_dialog.xlim_min.value(), self.style_dialog.xlim_max.value()])
-        ax.set_ylim([self.style_dialog.ylim_min.value(), self.style_dialog.ylim_max.value()])
+        ax.set_xlim(self.p.xlim)
+        ax.set_ylim(self.p.ylim)
         ax.set_xticks(np.arange(-250, 4001, 250), fontsize=14)
         ax.set_yticks(np.arange(0, 101, 10), fontsize=self.style_dialog.fontsize_inp.value())
-        ax.set_xlabel(self.style_dialog.xlabel_inp.text()+" $cm^{-1}$", fontsize=self.style_dialog.fontsize_inp.value())
-        ax.set_ylabel(self.style_dialog.ylabel_inp.text()+' $\epsilon (M^{-1}\, cm^{-1})$', fontsize=self.style_dialog.fontsize_inp.value())
+        ax.set_xlabel(self.style_dialog.xlabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
+        ax.set_ylabel(self.style_dialog.ylabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
         ax.set_title(self.style_dialog.title_inp.text(), fontsize=self.style_dialog.fontsize_inp.value()+2)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         leg = ax.legend(loc='best', frameon=False, fontsize=self.style_dialog.fontsize_inp.value())
 
-        fig.tight_layout()
+        # fig.tight_layout()
         fig.savefig(filename.split('.')[0]+'.{}'.format(self.ui.export_formats_select.currentText().lower()))
 
     def trigger_change_style(self):
@@ -269,16 +289,82 @@ class SpectrumAnalyzer(QDialog):
 
     # trigger style changes
     def trigger_apply_changes(self):
-        self.spectrumGraph.fig.suptitle(self.style_dialog.title_inp.text())
-        self.spectrumGraph.ax.set_xlabel(self.style_dialog.xlabel_inp.text())
-        self.spectrumGraph.ax.set_ylabel(self.style_dialog.ylabel_inp.text())
-        self.spectrumGraph.ax.set_xlim(
-            (self.style_dialog.xlim_min.value(), self.style_dialog.xlim_max.value())
+        sd = self.style_dialog
+
+        self.p.figure_width = sd.figure_width.value()
+        self.p.figure_height = sd.figure_height.value()
+        
+        self.p.padding_top    = sd.padding_top.value()
+        self.p.padding_bottom = sd.padding_bottom.value()
+        self.p.padding_left   = sd.padding_left.value()
+        self.p.padding_right  = sd.padding_right.value()
+
+        self.p.broaden_width = sd.linewidth_inp.value()
+        self.p.broaden_style = sd.line_shape_select.currentText()
+
+        self.p.spikes_width = sd.spike_width.value()
+        self.p.spikes_style = sd.spike_shape_select.currentText()
+
+        self.p.title = sd.title_inp.text()
+        self.p.xlabel = sd.xlabel_inp.text()
+        self.p.ylabel = sd.ylabel_inp.text()
+
+        self.p.xlim = sd.xlim_min.value(), sd.xlim_max.value()
+        self.p.ylim = sd.ylim_min.value(), sd.ylim_max.value()
+
+        self.spectrumGraph.fig.subplots_adjust(
+            top=self.p.padding_top,
+            bottom=self.p.padding_bottom,
+            left=self.p.padding_left,
+            right=self.p.padding_right,
         )
-        self.spectrumGraph.ax.set_ylim(
-            (self.style_dialog.ylim_min.value(), self.style_dialog.ylim_max.value())
-        )
+
+
+        self.spectrumGraph.fig.suptitle(self.p.title)
+        self.spectrumGraph.ax.set_xlabel(self.p.xlabel)
+        self.spectrumGraph.ax.set_ylabel(self.p.ylabel)
+        
+        self.spectrumGraph.ax.set_xlim(self.p.xlim)
+        self.spectrumGraph.ax.set_ylim(self.p.ylim)
+
+        if not self.ui.hide_verticals_check.isChecked():
+            self.spectrumGraph.peaks_plot.set_lw(self.p.spikes_width)
+            self.spectrumGraph.peaks_plot.set_ls(self.p.spikes_style)
+            self.spectrumGraph.peaks_plot.set_color(self.p.spikes_color)
+
+        if self.spectrumGraph._broaden:
+            self.spectrumGraph._broaden[0].set_lw(self.p.broaden_width)
+            self.spectrumGraph._broaden[0].set_ls(self.p.broaden_style)
+            self.spectrumGraph._broaden[0].set_color(self.p.broaden_color)
+        
         self.spectrumGraph.draw()
+
+    def trigger_pick_color(self, which):
+        color = QColorDialog(self).getColor()
+        r, g, b, a = color.getRgb()
+        back_color = "background-color: rgb({}, {}, {})".format(r, g, b)
+        hex_color = self.rgb2hex(r, g, b)
+        
+        if which == 'line':
+            self.p.broaden_color = hex_color
+            self.style_dialog.line_color_pick.setStyleSheet(back_color)
+
+        elif which == 'spike':
+            self.p.spikes_color = hex_color
+            self.style_dialog.spike_color_pick.setStyleSheet(back_color)
+
+        elif which == 'marker':
+            self.p.marker_color = hex_color
+            self.style_dialog.marker_color_pick.setStyleSheet(back_color)
+        else:
+            return
+
+    def trigger_linestyle_change(self, ls, which):
+        if which == 'line':
+            if self.spectrumGraph._broaden:
+                self.spectrumGraph._broaden[0].set_linestyle(ls)
+        elif which == 'spike':
+            self.spectrumGraph.peaks_plot.set_linestyles(ls)
 
     def setState(self, state):
         self.ui.broadening_check.setDisabled(state)
@@ -292,6 +378,14 @@ class SpectrumAnalyzer(QDialog):
         self.ui.show_numbers_check.setDisabled(state)
         self.ui.spectrums_select.setDisabled(state)
         self.ui.loaded_file_name.setDisabled(state)
+        self.ui.style_btn.setDisabled(state)
+        self.ui.export_graph_btn.setDisabled(state)
+        self.ui.export_formats_select.setDisabled(state)
+        self.ui.zoom_out_btn.setDisabled(state)
+        self.ui.tight_graph_btn.setDisabled(state)
+        self.spectrumGraph.setDisabled(state)
+        self.graphToolbar.setDisabled(state)
+
 
     def load_ir_data(self, filename=None):
         p = Parser(filename)
@@ -341,6 +435,11 @@ class SpectrumAnalyzer(QDialog):
         gInts = (gInts/gInts.max())*100
 
         return x, gInts
+
+    @staticmethod
+    def rgb2hex(r,g,b):
+        return "#{:02x}{:02x}{:02x}".format(r,g,b)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

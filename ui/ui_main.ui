@@ -138,6 +138,7 @@
                </property>
                <property name="font">
                 <font>
+                 <pointsize>9</pointsize>
                  <weight>75</weight>
                  <bold>true</bold>
                 </font>
@@ -145,8 +146,11 @@
                <property name="text">
                 <string/>
                </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
                <property name="indent">
-                <number>20</number>
+                <number>3</number>
                </property>
               </widget>
              </item>
@@ -595,7 +599,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>Hide verticals</string>
+                     <string>Hide spikes</string>
                     </property>
                    </widget>
                   </item>
