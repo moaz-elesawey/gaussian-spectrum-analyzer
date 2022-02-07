@@ -34,10 +34,10 @@ class SpectrumAnalyzer(QDialog):
         )
         self.setWindowIcon(QIcon("icons/spectrum-icon.jpg"))
         self.setWindowTitle("Spectrum Analyzer")
-        self.setMinimumSize(1280, 750)
         self.resize(1280, 750)
 
         self.item_selected = False
+        self.a_file_loaded = False
 
         self.p = Properties()
 
@@ -107,20 +107,16 @@ class SpectrumAnalyzer(QDialog):
         self.ui.zoom_out_btn.clicked.connect(self.graphToolbar.home)
         self.ui.tight_graph_btn.clicked.connect(self.trigger_tight_layout)
         self.ui.broadening_btn.clicked.connect(
-            lambda _: self.spectrumGraph.applyBroadening(
-                self.p,
-                float(self.ui.broadening_inp.text())
-            )
+            lambda _: self.spectrumGraph.applyBroadening(self.p)
         )
         self.ui.broadening_slider.valueChanged.connect(self.trigger_broadening_slider)
         self.ui.open_file_btn.clicked.connect(self.trigger_open_file)
         self.ui.spectrum_table.itemSelectionChanged.connect(self.trigger_table_selection)
         self.ui.spectrums_select.currentIndexChanged.connect(self.trigger_spectrum_select)
-        self.ui.export_graph_btn.clicked.connect(
-            lambda e:self.trigger_save_figure(self.ui.export_formats_select.currentText().lower())
-        )
+        self.ui.export_graph_btn.clicked.connect(self.trigger_save_figure)
         self.ui.style_btn.clicked.connect(self.trigger_change_style)
-
+        self.ui.broadening_inp.textChanged.connect(self.trigger_broadening_text)
+        
         self.style_dialog.line_color_pick.clicked.connect(lambda : self.trigger_pick_color('line'))
         self.style_dialog.spike_color_pick.clicked.connect(lambda : self.trigger_pick_color('spike'))
         self.style_dialog.marker_color_pick.clicked.connect(lambda : self.trigger_pick_color('marker'))
@@ -131,6 +127,7 @@ class SpectrumAnalyzer(QDialog):
         self.style_dialog.spike_shape_select.currentIndexChanged.connect(
             lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='spike')
         )
+        self.ui.close_btn.clicked.connect(self.close)
 
     # togglers
     def toggle_broadening(self, state):
@@ -141,7 +138,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.label.setDisabled(not state)
 
         if not self.spectrumGraph._broaden:
-            self.spectrumGraph.applyBroadening(self.p, self.ui.broadening_slider.value())
+            self.spectrumGraph.applyBroadening(self.p)
 
         if not state:
             self.spectrumGraph.removeBroadening(self.p)
@@ -177,8 +174,18 @@ class SpectrumAnalyzer(QDialog):
         self.spectrumGraph.draw()
 
     def trigger_broadening_slider(self, broad):
-        self.spectrumGraph.applyBroadening(self.p, broad)
+        self.p.broaden_sigma = broad
+        self.spectrumGraph.applyBroadening(self.p)
         self.ui.broadening_inp.setText(str(broad))
+
+    def trigger_broadening_text(self, sigma):
+        try:
+            sigma = float(sigma)
+            self.p.broaden_sigma = sigma
+            self.spectrumGraph.applyBroadening(self.p)
+            # self.ui.broadening_slider.setValue(sigma)
+        except Exception as e: 
+            print(str(e))
 
     def trigger_spectrum_select(self, index):
         
@@ -186,19 +193,66 @@ class SpectrumAnalyzer(QDialog):
         self.spectrumGraph.initStyle()
         self.ui.hide_verticals_check.setChecked(False)
 
-        if index == 1:
-            self.spectrumGraph.PlotData(self.freq, self.raman_ints)
-            self.populateTable(self.freq, self.raman_ints)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Raman Intensities'])
-            self.spectrumGraph.fig.suptitle('Raman Spectrum of #', fontsize=14)
-        elif index == 0:
-            self.spectrumGraph.PlotData(self.freq, self.ir_ints)
-            self.populateTable(self.freq, self.ir_ints)
+        if index == 0:
+            self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints)
+            self.populateTable(self.parser.freq, self.parser.ir_ints)
             self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'IR Intensities'])
             self.spectrumGraph.fig.suptitle('IR Spectrum of #', fontsize=14)
+            # self.p.ylim = (self.parser.ir_ints.min(), self.parser.ir_ints.max())
         
+        elif index == 1:
+            self.spectrumGraph.PlotData(self.parser.freq, self.parser.raman_ints)
+            self.populateTable(self.parser.freq, self.parser.raman_ints)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Raman Intensities'])
+            self.spectrumGraph.fig.suptitle('Raman Spectrum of #', fontsize=14)
+            # self.p.ylim = (self.parser.raman_ints.min(), self.parser.raman_ints.max())
+
+        elif index == 2:
+            self.spectrumGraph.PlotData(self.parser.freq, self.parser.frc_consts)
+            self.populateTable(self.parser.freq, self.parser.frc_consts)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'FRC Consts'])
+            self.spectrumGraph.fig.suptitle('FRC consts of #', fontsize=14)
+            # self.p.ylim = (self.parser.frc_consts.min(), self.parser.frc_consts.max())
+
+        elif index == 3:
+            self.spectrumGraph.PlotData(self.parser.freq, self.parser.red_masses)
+            self.populateTable(self.parser.freq, self.parser.red_masses)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Red Masses'])
+            self.spectrumGraph.fig.suptitle('Red Masses of #', fontsize=14)
+            # self.p.ylim = (self.parser.red_masses.min(), self.parser.red_masses.max())
+        
+        elif index == 4:
+            self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_p)
+            self.populateTable(self.parser.freq, self.parser.depolar_p)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Depolar (P)'])
+            self.spectrumGraph.fig.suptitle('Depolar (P) of #', fontsize=14)
+            # self.p.ylim = (self.parser.depolar_p.min(), self.parser.depolar_p.max())
+        
+        elif index == 5:
+            self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_u)
+            self.populateTable(self.parser.freq, self.parser.depolar_u)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Depolar (U)'])
+            self.spectrumGraph.fig.suptitle('Depolar (U) of #', fontsize=14)
+            # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
+
+        elif index == 6:
+            deg = np.ones(self.parser.nmr_sheilding.shape[0])
+            self.spectrumGraph.PlotData(self.parser.nmr_sheilding, deg)
+            self.populateTable(self.parser.nmr_sheilding, deg)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['Sheilding', 'Degeneracy'])
+            self.spectrumGraph.fig.suptitle('NMR Spectrum of #', fontsize=14)
+            # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
+        
+        elif index == 7:
+            deg = np.ones(self.parser.uv_spectrum.shape[0])
+            self.spectrumGraph.PlotData(self.parser.uv_spectrum, deg)
+            self.populateTable(self.parser.uv_spectrum, deg)
+            self.ui.spectrum_table.setHorizontalHeaderLabels(['UV Vis Wavelength', 'Degeneracy'])
+            self.spectrumGraph.fig.suptitle('UV Vis Spectrum of #', fontsize=14)
+            # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
+
         if self.ui.broadening_check.isChecked():
-            self.spectrumGraph.applyBroadening(self.p, self.ui.broadening_slider.value())
+            self.spectrumGraph.applyBroadening(self.p)
 
         self.spectrumGraph.draw()
 
@@ -219,11 +273,12 @@ class SpectrumAnalyzer(QDialog):
             self.item_selected = False
             _title = "#"+filename
             self.ui.loaded_file_name.setText(_title)
+            self.a_file_loaded = True
 
             if self.ui.broadening_check.isChecked():
-                self.spectrumGraph.applyBroadening(self.p, self.ui.broadening_slider.value())
+                self.spectrumGraph.applyBroadening(self.p)
 
-    def trigger_save_figure(self, ext:str):
+    def trigger_save_figure(self):
         if len(self.spectrumGraph.freq) != len(self.spectrumGraph.ints): return
 
         filename, _ = QFileDialog.getSaveFileName()
@@ -301,6 +356,7 @@ class SpectrumAnalyzer(QDialog):
 
         self.p.broaden_width = sd.linewidth_inp.value()
         self.p.broaden_style = sd.line_shape_select.currentText()
+        self.p.broaden_sigma = self.ui.broadening_slider.value()
 
         self.p.spikes_width = sd.spike_width.value()
         self.p.spikes_style = sd.spike_shape_select.currentText()
@@ -318,7 +374,6 @@ class SpectrumAnalyzer(QDialog):
             left=self.p.padding_left,
             right=self.p.padding_right,
         )
-
 
         self.spectrumGraph.fig.suptitle(self.p.title)
         self.spectrumGraph.ax.set_xlabel(self.p.xlabel)
@@ -388,28 +443,17 @@ class SpectrumAnalyzer(QDialog):
 
 
     def load_ir_data(self, filename=None):
-        p = Parser(filename)
-        freq = np.array(p.freq)
-        ir_ints = np.array(p.ir_ints)
-        raman_ints = np.array(p.raman_ints)
-
-        if len(ir_ints) > 0:
-            ir_ints = (ir_ints/ir_ints.max())*100
-        if len(raman_ints) > 0:
-            raman_ints = (raman_ints/raman_ints.max())*100
-
-        return freq, ir_ints, raman_ints
+        self.parser: Parser = Parser(filename)
 
     def applyLoadedData(self, filename):
-        self.freq, self.ir_ints, self.raman_ints = self.load_ir_data(filename)
-
+        self.load_ir_data(filename)
+        
         # apply to table
-        self.populateTable(self.freq, self.ir_ints)
+        self.populateTable(self.parser.freq, self.parser.ir_ints)
 
         # apply to graph
-        self.spectrumGraph.PlotData(self.freq, self.ir_ints)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints)
         
-
     def populateTable(self, freq:np.ndarray, ints:np.ndarray):
         self.ui.spectrum_table.setRowCount(len(freq))
         self.ui.spectrum_table.setColumnCount(2)
@@ -440,6 +484,22 @@ class SpectrumAnalyzer(QDialog):
     def rgb2hex(r,g,b):
         return "#{:02x}{:02x}{:02x}".format(r,g,b)
 
+    def closeEvent(self, event):
+        if not self.a_file_loaded: return super().closeEvent(event)
+
+        reply = QMessageBox.question(self, 'Quit!', "Save changes?",
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+                                     QMessageBox.Cancel)
+
+        if reply == QMessageBox.Yes:
+            self.trigger_save_figure()
+            event.accept()
+        elif reply == QMessageBox.No:
+            event.accept()
+        elif reply == QMessageBox.Cancel:
+            event.ignore()
+        else:
+            pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

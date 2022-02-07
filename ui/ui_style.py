@@ -136,7 +136,7 @@ class Ui_StyleDialog(object):
         self.padding_left = QtWidgets.QDoubleSpinBox(self.frame_5)
         self.padding_left.setMaximum(1.0)
         self.padding_left.setSingleStep(0.01)
-        self.padding_left.setProperty("value", 0.13)
+        self.padding_left.setProperty("value", 0.1)
         self.padding_left.setObjectName("padding_left")
         self.gridLayout_11.addWidget(self.padding_left, 1, 2, 1, 1)
         self.padding_right = QtWidgets.QDoubleSpinBox(self.frame_5)

@@ -40,7 +40,11 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.ints = ints
         if len(self.freq) != len(self.ints): return
         self.peaks_plot = self.ax.vlines(self.freq, ymin=0, ymax=self.ints, colors='k', label='Intensities Peaks')
-        self.ax.set_ylim([-2, max(self.ints)])
+        
+        # self.ax.set_ylim([min(self.ints), max(self.ints)])
+        if not len(self.freq) == 0:
+            self.ax.set_xlim(min(self.freq), max(self.freq))
+
         self.draw()
 
     def initStyle(self):
@@ -64,27 +68,36 @@ class SpectrumGraph(FigureCanvasQTAgg):
         if self._broaden:
             l = self._broaden.pop(0)
             l.remove()
+
+            xmin, xmax = min(self.ints), max(self.ints)
+            if xmin == xmax:
+                xmin = 0
+            p.ylim = (xmin, xmax)
             self.ax.set_ylim(p.ylim)
         self.draw()
 
-
-    def applyBroadening(self, p, sigma=40):
+    def applyBroadening(self, p):
         self.removeBroadening(p)
-        if len(self.ints) == 0: return
+        if len(self.ints) == 0 or len(self.freq) == 0: return
 
-        x= np.linspace(-250, 4100, num=1000, endpoint=True)
+        x= np.linspace(min(self.freq), max(self.freq), num=1000, endpoint=True)
 
         gInts = []
         for Fi in x:
-            gI = np.sum(self.ints*np.exp(-((((self.freq-Fi)/sigma)**2))))
+            gI = np.sum(self.ints*np.exp(-((((self.freq-Fi)/p.broaden_sigma)**2))))
             gInts.append(gI)
         
         gInts = np.array(gInts)
-        gInts = (gInts/gInts.max())*100
+        # gInts = (gInts/gInts.max())*100
         self._broaden = self.ax.plot(x, gInts, color=p.broaden_color, linestyle=p.broaden_style, 
                 linewidth=p.broaden_width, label='Smoothed Data')
         
+        xmin, xmax = gInts.min(), gInts.max()
+        if xmin == xmax:
+            xmin = 0
+        p.ylim = (xmin, xmax)
         self.ax.set_ylim(p.ylim)
+        self.ax.set_xlim(min(x), max(x))
 
         self.draw()
 
@@ -107,6 +120,7 @@ class Properties:
         self.broaden_color   = '#333333'
         self.broaden_style   = '-'
         self.broaden_width   = 1
+        self.broaden_sigma   = 40
         self.spikes_color    = '#000000'
         self.spikes_style    = '-'
         self.spikes_width    = 1
