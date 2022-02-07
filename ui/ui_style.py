@@ -457,7 +457,7 @@ class Ui_StyleDialog(object):
         self.ylim_max.setSizePolicy(sizePolicy)
         self.ylim_max.setMinimumSize(QtCore.QSize(0, 30))
         self.ylim_max.setMinimum(-5.0)
-        self.ylim_max.setMaximum(110.0)
+        self.ylim_max.setMaximum(1100.0)
         self.ylim_max.setProperty("value", 105.0)
         self.ylim_max.setObjectName("ylim_max")
         self.gridLayout_6.addWidget(self.ylim_max, 1, 3, 1, 1)

@@ -80,7 +80,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.removeBroadening(p)
         if len(self.ints) == 0 or len(self.freq) == 0: return
 
-        x= np.linspace(min(self.freq), max(self.freq), num=1000, endpoint=True)
+        x= np.linspace(min(self.freq)-200, max(self.freq)+200, num=800, endpoint=True)
 
         gInts = []
         for Fi in x:
@@ -88,7 +88,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
             gInts.append(gI)
         
         gInts = np.array(gInts)
-        # gInts = (gInts/gInts.max())*100
+        gInts = (gInts/gInts.max())*100
         self._broaden = self.ax.plot(x, gInts, color=p.broaden_color, linestyle=p.broaden_style, 
                 linewidth=p.broaden_width, label='Smoothed Data')
         
@@ -100,7 +100,6 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.ax.set_xlim(min(x), max(x))
 
         self.draw()
-
 
     def togglePeaks(self, state, color):
         if not state:
@@ -134,3 +133,19 @@ class Properties:
         self.padding_bottom  = 0.13
         self.padding_left    = 0.13
         self.padding_right   = 0.98
+
+    @property
+    def xlim(self):
+        return self._xlim
+
+    @xlim.setter
+    def xlim(self, xlim):
+        self._xlim = xlim[0]-200, xlim[1]+200
+
+    @property
+    def ylim(self):
+        return self._ylim
+
+    @ylim.setter
+    def ylim(self, ylim):
+        self._ylim = ylim[0]-2, ylim[1]+8

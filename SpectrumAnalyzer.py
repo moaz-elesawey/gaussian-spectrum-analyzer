@@ -32,7 +32,7 @@ class SpectrumAnalyzer(QDialog):
             Qt.WindowMaximizeButtonHint | 
             Qt.WindowMinimizeButtonHint
         )
-        self.setWindowIcon(QIcon("icons/spectrum-icon.jpg"))
+        self.setWindowIcon(QIcon("icons/spectrum-icon.png"))
         self.setWindowTitle("Spectrum Analyzer")
         self.resize(1280, 750)
 
@@ -503,6 +503,6 @@ class SpectrumAnalyzer(QDialog):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    app.setStyle('Windows')
+    # app.setStyle('Windows')
     win = SpectrumAnalyzer()
     sys.exit(app.exec())

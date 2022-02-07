@@ -146,16 +146,6 @@
                  <string>Depolar (U)</string>
                 </property>
                </item>
-               <item>
-                <property name="text">
-                 <string>NMR Spectrum</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>UV Vis Spectrum</string>
-                </property>
-               </item>
               </widget>
              </item>
              <item>

@@ -41,6 +41,16 @@ class Parser:
         self.nmr_sheilding  = np.array(self.load_nmr_spectrum())
         self.uv_spectrum    = np.array(self.load_uv_spectrum())
 
+        self.ir_ints        = (self.ir_ints/self.ir_ints.max())*100 if len(self.ir_ints) > 0 else self.ir_ints
+        self.raman_ints     = (self.raman_ints/self.raman_ints.max())*100 if len(self.raman_ints) > 0 else self.raman_ints
+        self.depolar_p      = (self.depolar_p/self.depolar_p.max())*100 if len(self.depolar_p) > 0 else self.depolar_p
+        self.depolar_u      = (self.depolar_u/self.depolar_u.max())*100 if len(self.depolar_u) > 0 else self.depolar_u
+        self.frc_consts     = (self.frc_consts/self.frc_consts.max())*100 if len(self.frc_consts) > 0 else self.frc_consts
+        self.red_masses     = (self.red_masses/self.red_masses.max())*100 if len(self.red_masses) > 0 else self.red_masses
+        self.nmr_sheilding  = (self.nmr_sheilding/self.nmr_sheilding.max())*100 if len(self.nmr_sheilding) > 0 else self.nmr_sheilding
+        self.uv_spectrum    = (self.uv_spectrum/self.uv_spectrum.max())*100 if len(self.uv_spectrum) > 0 else self.uv_spectrum
+
+
     def load_frequencies(self):
         freq = []
         for l in self.lines:
