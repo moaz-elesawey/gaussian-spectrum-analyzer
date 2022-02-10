@@ -20,7 +20,10 @@ $ python SpectrumAnalyzer.py
 ![screenshot_1](./screenshots/screenshot_1.png)
 
 ### Raman Spectrum
-![screenshot_1](./screenshots/screenshot_2.png)
+![screenshot_2](./screenshots/screenshot_2.png)
+
+### 3D Render
+![screenshot_3](./screenshots/screenshot_3.png)
 
 ## Info
 You can install the precompiled version if you are in windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v1.0-alpha)
