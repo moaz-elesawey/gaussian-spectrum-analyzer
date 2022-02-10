@@ -7,8 +7,11 @@ from matplotlib import pyplot
 from ui.ui_main import Ui_SpectrumAnalyzer
 from ui.ui_style import Ui_StyleDialog
 from spectrum_graph import Properties, SpectrumGraph, Toolbar
-from gaussian_parser import Parser
+from gaussian_parser import Parser, get_position_table, load_geometry_table
 from consts import EXPORT_FORMATS, LINESTYLES
+
+import pyqtgraph.opengl as gl
+
 
 import numpy as np
 
@@ -57,6 +60,9 @@ class SpectrumAnalyzer(QDialog):
 
     def uiComponents(self):
         self.spectrumGraph = SpectrumGraph()
+
+        self.viewer = gl.GLViewWidget()
+        
         self.graphToolbar = Toolbar(self.spectrumGraph, self.ui.spectrumFrame)
         self.style_dialog = StyleDialog()
         self.style_dialog.setModal(True)
@@ -94,6 +100,11 @@ class SpectrumAnalyzer(QDialog):
         self.style_dialog.line_shape_select.addItems(LINESTYLES)
         self.style_dialog.spike_shape_select.addItems(LINESTYLES)
 
+        self.viewer.setWindowTitle('STL Viewer')
+        self.viewer.setCameraPosition(distance=25)
+        self.ui.renderLayout.addWidget(self.viewer)
+
+
     def initActions(self):
         self.ui.broadening_check.toggled.connect(self.toggle_broadening)
         self.ui.scale_curve_check.toggled.connect(self.toggle_scale_curve)
@@ -127,6 +138,9 @@ class SpectrumAnalyzer(QDialog):
         self.style_dialog.spike_shape_select.currentIndexChanged.connect(
             lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='spike')
         )
+        self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(1))
+        self.ui.spectrum_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
+
         self.ui.close_btn.clicked.connect(self.close)
 
     # togglers
@@ -421,6 +435,17 @@ class SpectrumAnalyzer(QDialog):
         elif which == 'spike':
             self.spectrumGraph.peaks_plot.set_linestyles(ls)
 
+    def trigger_change_page(self):
+        current_index = self.ui.spectrumStackedWidget.currentIndex()
+
+        if current_index == 0:
+            self.ui.render_btn.setText('3D Render')
+            self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(1))
+        elif current_index == 1:
+            self.ui.render_btn.setText('Spectrum Graph')
+            self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
+        
+
     def setState(self, state):
         self.ui.broadening_check.setDisabled(state)
         self.ui.spectrum_table.setDisabled(state)
@@ -438,6 +463,8 @@ class SpectrumAnalyzer(QDialog):
         self.ui.export_formats_select.setDisabled(state)
         self.ui.zoom_out_btn.setDisabled(state)
         self.ui.tight_graph_btn.setDisabled(state)
+        self.ui.render_btn.setDisabled(state)
+        self.ui.spectrum_btn.setDisabled(state)
         self.spectrumGraph.setDisabled(state)
         self.graphToolbar.setDisabled(state)
 
@@ -447,6 +474,7 @@ class SpectrumAnalyzer(QDialog):
 
     def applyLoadedData(self, filename):
         self.load_ir_data(filename)
+        self.load_and_render(filename)
         
         # apply to table
         self.populateTable(self.parser.freq, self.parser.ir_ints)
@@ -465,7 +493,38 @@ class SpectrumAnalyzer(QDialog):
             self.ui.spectrum_table.setItem(idx, 0, QTableWidgetItem("{:10.4f}".format(f)))
             self.ui.spectrum_table.setItem(idx, 1, QTableWidgetItem("{:10.4f}".format(i)))
 
-    
+
+    def load_and_render(self, filename):
+
+        self.viewer.clear()
+
+        with open(filename) as f:
+            data = f.readlines()
+
+        geom_tables = np.array(get_position_table(data))
+
+        struct1 = geom_tables[0]
+        bonds = load_geometry_table(data)
+
+        for idx, b in enumerate(bonds):
+            l = struct1[b[0]-1]
+            r = struct1[b[1]-1]
+
+            plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=True)
+            self.viewer.addItem(plt)
+
+
+        for atom in struct1:
+            md = gl.MeshData.sphere(rows=50, cols=50)
+            m3 = gl.GLMeshItem(meshdata=md, smooth=False, shader='shaded')
+            m3.translate(atom.x, atom.y, atom.z)
+            m3.scale(.4, .4, .4)
+            self.viewer.addItem(m3)
+
+            txtitem2 = gl.GLTextItem()
+            txtitem2.setData(pos=(atom.x, atom.y, atom.z), color=(255, 0, 0, 255), text=str(int(atom.index)))
+            # self.viewer.addItem(txtitem2)
+
     @staticmethod
     def generate_broadening_for_export(sigma, freq, ints):
         x= np.linspace(-250, 4100, num=1000, endpoint=True)

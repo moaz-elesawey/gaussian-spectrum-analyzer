@@ -152,6 +152,82 @@ class Parser:
 
         return uv_spectrum
 
+class MESSAGE:
+    ATOM_COUNT  = "Stoichiometry"
+    GEOMETRY    = "Standard orientation:"
+    BOND        = "(Angstroms and Degrees)"
+    SEPARATOR   = "GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"
 
-# p = Parser('data/UVVIS_CEFPODOXIME.LOG')
-# print(p.load_uv_spectrum())
+with open('data/HF_CEFOVECIN.LOG') as f:
+    data = f.readlines()
+
+
+class Atom:
+    def __init__(self, index, atomic_number, x, y, z) -> None:
+        self.index = int(index)
+        self.atomic_number = int(atomic_number)
+        self.x = x
+        self.y = y
+        self.z = z
+
+    @property
+    def pos(self):
+        return self.x, self.y, self.z
+
+class Bond:
+    def __init__(self, l:int, r:int) -> None:
+        self.l = l
+        self.r = r
+
+def get_atoms_count(data):
+    for l in data:
+        if MESSAGE.ATOM_COUNT in l:
+            stoichiometry = l.replace(MESSAGE.ATOM_COUNT, '').strip()
+            atom_count = re.findall(r'\d+', stoichiometry)
+            atoms_count = sum(list(map(int, atom_count)))
+
+            return atoms_count
+
+
+def format_table(table):
+    tb = []
+    _RE_COMBINE_WHITESPACE = re.compile(r"\s+")
+
+    for l in table:
+        tb_l = l.strip().replace('\n', '')
+        trimmed_l = _RE_COMBINE_WHITESPACE.sub(",", tb_l).strip().lstrip()
+        ent = list(map(float, trimmed_l.split(',')))
+        atom = Atom(ent[0], ent[1], ent[3], ent[4], ent[5])
+        tb.append(atom)
+
+    return tb
+
+
+def get_position_table(data):
+    atoms_count = get_atoms_count(data)
+    
+    geom_tables = []
+
+    for idx, l in enumerate(data):
+        if MESSAGE.GEOMETRY in l:
+            table = data[idx+5:idx+atoms_count+5]
+            table = format_table(table)
+            geom_tables.append(table)
+
+    return geom_tables
+
+
+def load_geometry_table(data):
+    bonds = []
+
+    for idx, l in enumerate(data):
+        
+        if MESSAGE.BOND in l:
+            for gl in data[idx+4:]:
+                if 'R(' in gl:
+                    bonds.append(list(map(int, re.findall(r'\d+,\d+', gl)[0].split(','))))
+                if MESSAGE.SEPARATOR in gl:
+                    break
+            break
+
+    return bonds
