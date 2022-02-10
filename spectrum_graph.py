@@ -11,7 +11,9 @@ import numpy as np
 from time import time
 
 # pyplot.style.use('')
-pyplot.rcParams.update({'font.family':'sans-serif'})
+
+pyplot.rcParams["font.family"] = "serif"
+# pyplot.rcParams["mathtext.fontset"] = "dejavuserif"
 pyplot.rcParams['font.size'] = 9
 
 

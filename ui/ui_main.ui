@@ -31,6 +31,12 @@
    </property>
    <item>
     <widget class="QFrame" name="mainFrame">
+     <property name="font">
+      <font>
+       <family>Serif</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -55,6 +61,12 @@
       </property>
       <item>
        <widget class="QSplitter" name="splitter">
+        <property name="font">
+         <font>
+          <family>Serif</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -64,6 +76,12 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Serif</family>
+           <pointsize>10</pointsize>
+          </font>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -89,6 +107,12 @@
           </property>
           <item>
            <widget class="QFrame" name="frame_3">
+            <property name="font">
+             <font>
+              <family>Serif</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -115,6 +139,12 @@
                  <width>200</width>
                  <height>28</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <item>
                 <property name="text">
@@ -158,7 +188,8 @@
                </property>
                <property name="font">
                 <font>
-                 <pointsize>9</pointsize>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
                  <weight>75</weight>
                  <bold>true</bold>
                 </font>
@@ -185,8 +216,14 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>28</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>&amp;Open Gaussian File...</string>
@@ -216,6 +253,7 @@
             <property name="font">
              <font>
               <family>Serif</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="styleSheet">
@@ -289,6 +327,12 @@
               <height>200</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>Serif</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -321,6 +365,12 @@
                    <height>28</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
@@ -338,6 +388,18 @@
                </item>
                <item>
                 <widget class="QPushButton" name="tight_graph_btn">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>28</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
@@ -364,6 +426,12 @@
                    <height>28</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Set custom frame</string>
                  </property>
@@ -379,7 +447,8 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>13</pointsize>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -406,6 +475,12 @@
                    <height>28</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Style</string>
                  </property>
@@ -419,13 +494,26 @@
                    <height>28</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Export graph</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="export_formats_select"/>
+                <widget class="QComboBox" name="export_formats_select">
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>
@@ -439,12 +527,24 @@
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                 </widget>
                </item>
                <item row="2" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_2">
                  <item>
                   <widget class="QCheckBox" name="show_peaks_check">
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Show peaks</string>
                    </property>
@@ -458,10 +558,22 @@
                      <height>28</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QCheckBox" name="show_marks_check">
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Show marks</string>
                    </property>
@@ -475,6 +587,12 @@
                      <height>28</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -483,6 +601,12 @@
                 <layout class="QHBoxLayout" name="horizontalLayout">
                  <item>
                   <widget class="QLabel" name="label">
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Band width on 1/2 height</string>
                    </property>
@@ -495,6 +619,12 @@
                      <width>0</width>
                      <height>28</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <property name="inputMethodHints">
                     <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly|Qt::ImhPreferNumbers</set>
@@ -521,6 +651,12 @@
                      <height>16777215</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <family>Serif</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>OK</string>
                    </property>
@@ -530,6 +666,12 @@
                </item>
                <item row="1" column="1">
                 <widget class="QSlider" name="broadening_slider">
+                 <property name="font">
+                  <font>
+                   <family>Serif</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="minimum">
                   <number>5</number>
                  </property>
@@ -554,6 +696,12 @@
              </item>
              <item row="1" column="0" colspan="2">
               <widget class="Line" name="line_2">
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -567,11 +715,23 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <layout class="QGridLayout" name="gridLayout_3">
                 <item row="0" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QCheckBox" name="broadening_check">
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
                     <property name="text">
                      <string>Broaden bonds</string>
                     </property>
@@ -584,6 +744,12 @@
                       <width>0</width>
                       <height>28</height>
                      </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
                     </property>
                     <item>
                      <property name="text">
@@ -612,6 +778,12 @@
                       <height>28</height>
                      </size>
                     </property>
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
                     <property name="text">
                      <string>Interpolate coordinate</string>
                     </property>
@@ -627,6 +799,12 @@
                       <width>0</width>
                       <height>28</height>
                      </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
                     </property>
                     <property name="text">
                      <string>Export Values</string>
@@ -645,6 +823,12 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
                     <property name="text">
                      <string>Hide spikes</string>
                     </property>
@@ -652,6 +836,12 @@
                   </item>
                   <item>
                    <widget class="QCheckBox" name="scale_curve_check">
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
                     <property name="text">
                      <string>Scale curve</string>
                     </property>
@@ -659,6 +849,12 @@
                   </item>
                   <item>
                    <widget class="QLineEdit" name="scale_curve_inp">
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
                     <property name="inputMethodHints">
                      <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly</set>
                     </property>
@@ -683,6 +879,12 @@
                       <width>40</width>
                       <height>16777215</height>
                      </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Serif</family>
+                      <pointsize>10</pointsize>
+                     </font>
                     </property>
                     <property name="text">
                      <string>OK</string>
@@ -712,6 +914,12 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>Serif</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -738,6 +946,12 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Serif</family>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
@@ -779,6 +993,12 @@
               <height>220</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>Serif</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
@@ -803,6 +1023,12 @@
              </property>
              <item row="5" column="0" colspan="3">
               <widget class="Line" name="line">
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -815,6 +1041,12 @@
                  <width>0</width>
                  <height>28</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="inputMethodHints">
                 <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly</set>
@@ -829,6 +1061,12 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Scale X</string>
                </property>
@@ -841,6 +1079,12 @@
                  <width>0</width>
                  <height>28</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="inputMethodHints">
                 <set>Qt::ImhDigitsOnly|Qt::ImhFormattedNumbersOnly</set>
@@ -855,6 +1099,12 @@
                  <height>28</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Help</string>
                </property>
@@ -862,6 +1112,12 @@
              </item>
              <item row="2" column="0" colspan="3" alignment="Qt::AlignBottom">
               <widget class="QCheckBox" name="show_numbers_check">
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Show numbers</string>
                </property>
@@ -878,6 +1134,12 @@
                  <height>28</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Copy</string>
                </property>
@@ -890,6 +1152,12 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>Scale Y</string>
@@ -907,6 +1175,12 @@
                  <height>28</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Import Values</string>
                </property>
@@ -919,6 +1193,12 @@
                  <width>0</width>
                  <height>28</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>Close</string>
@@ -939,6 +1219,12 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>OK</string>
                </property>
@@ -958,6 +1244,12 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>OK</string>
                </property>
@@ -965,6 +1257,12 @@
              </item>
              <item row="1" column="0" colspan="3">
               <widget class="Line" name="line_3">
+               <property name="font">
+                <font>
+                 <family>Serif</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>

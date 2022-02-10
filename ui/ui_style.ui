@@ -22,6 +22,11 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QFrame" name="frame">
+     <property name="font">
+      <font>
+       <family>Serif</family>
+      </font>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -31,6 +36,11 @@
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QGroupBox" name="groupBox">
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="title">
          <string>Title and Labels</string>
         </property>
@@ -46,6 +56,11 @@
              <height>0</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>X Label</string>
            </property>
@@ -53,6 +68,11 @@
          </item>
          <item row="1" column="2">
           <widget class="QLineEdit" name="xlabel_inp">
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>Wavenumber</string>
            </property>
@@ -62,6 +82,11 @@
           <layout class="QGridLayout" name="gridLayout">
            <item row="0" column="0">
             <widget class="QFontComboBox" name="font_select">
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="editable">
               <bool>false</bool>
              </property>
@@ -75,6 +100,11 @@
                <height>0</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="text">
               <string>Fontsize</string>
              </property>
@@ -82,6 +112,11 @@
            </item>
            <item row="0" column="2">
             <widget class="QSpinBox" name="fontsize_inp">
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="minimum">
               <number>8</number>
              </property>
@@ -103,6 +138,11 @@
              <height>0</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>Y Label</string>
            </property>
@@ -110,6 +150,11 @@
          </item>
          <item row="2" column="2">
           <widget class="QLineEdit" name="ylabel_inp">
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>Intensity</string>
            </property>
@@ -123,6 +168,11 @@
              <height>0</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>Font</string>
            </property>
@@ -130,6 +180,11 @@
          </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="title_inp">
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>Spectrum of #</string>
            </property>
@@ -143,6 +198,11 @@
              <height>0</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="text">
             <string>Title</string>
            </property>
@@ -153,6 +213,11 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_4">
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="title">
          <string>Figure size and padding</string>
         </property>
@@ -182,6 +247,7 @@
            </property>
            <property name="font">
             <font>
+             <family>Serif</family>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -201,7 +267,7 @@
            </property>
            <property name="font">
             <font>
-             <family>Ubuntu</family>
+             <family>Serif</family>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -224,6 +290,11 @@
              <width>0</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
            </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -249,6 +320,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_25">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Top</string>
               </property>
@@ -256,6 +332,11 @@
             </item>
             <item row="0" column="1">
              <widget class="QLabel" name="label_27">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Bottom</string>
               </property>
@@ -263,6 +344,11 @@
             </item>
             <item row="0" column="2">
              <widget class="QLabel" name="label_26">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Left</string>
               </property>
@@ -270,6 +356,11 @@
             </item>
             <item row="0" column="3">
              <widget class="QLabel" name="label_28">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Right</string>
               </property>
@@ -277,6 +368,11 @@
             </item>
             <item row="1" column="0">
              <widget class="QDoubleSpinBox" name="padding_top">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -290,6 +386,11 @@
             </item>
             <item row="1" column="1">
              <widget class="QDoubleSpinBox" name="padding_bottom">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -303,6 +404,11 @@
             </item>
             <item row="1" column="2">
              <widget class="QDoubleSpinBox" name="padding_left">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -316,6 +422,11 @@
             </item>
             <item row="1" column="3">
              <widget class="QDoubleSpinBox" name="padding_right">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -338,6 +449,11 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <layout class="QGridLayout" name="gridLayout_9">
             <item row="0" column="0">
              <widget class="QLabel" name="label_22">
@@ -346,6 +462,11 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
               </property>
               <property name="text">
                <string>width</string>
@@ -359,6 +480,11 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
               </property>
               <property name="minimum">
                <double>2.000000000000000</double>
@@ -376,6 +502,11 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>height</string>
               </property>
@@ -388,6 +519,11 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
               </property>
               <property name="minimum">
                <double>2.000000000000000</double>
@@ -405,6 +541,11 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_2">
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="title">
          <string>Linestyles and markers</string>
         </property>
@@ -446,6 +587,11 @@
                <height>30</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="value">
               <double>1.300000000000000</double>
              </property>
@@ -465,6 +611,11 @@
                <height>30</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
             </widget>
            </item>
            <item row="2" column="0">
@@ -480,6 +631,11 @@
                <width>100</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
              </property>
              <property name="text">
               <string>Marker</string>
@@ -500,6 +656,11 @@
                <height>0</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="text">
               <string>Spike width</string>
              </property>
@@ -519,6 +680,11 @@
                <height>30</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="value">
               <double>1.200000000000000</double>
              </property>
@@ -537,6 +703,11 @@
                <width>100</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
              </property>
              <property name="text">
               <string>Line width</string>
@@ -564,6 +735,11 @@
                <height>0</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="text">
               <string>Line shape</string>
              </property>
@@ -583,6 +759,11 @@
                <height>30</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
             </widget>
            </item>
            <item row="1" column="0">
@@ -598,6 +779,11 @@
                <width>100</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
              </property>
              <property name="text">
               <string>Spike shape</string>
@@ -618,6 +804,11 @@
                <height>30</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
             </widget>
            </item>
            <item row="2" column="0">
@@ -634,6 +825,11 @@
                <height>0</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
              <property name="text">
               <string>Marker size</string>
              </property>
@@ -647,12 +843,22 @@
                <height>30</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Serif</family>
+              </font>
+             </property>
             </widget>
            </item>
           </layout>
          </item>
          <item row="0" column="1">
           <widget class="QFrame" name="frame">
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
+           </property>
            <property name="styleSheet">
             <string notr="true">QPushButton{
 	background-color: rgb(0, 0, 0);
@@ -678,6 +884,11 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Line color</string>
               </property>
@@ -696,6 +907,11 @@
                 <width>30</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
               </property>
               <property name="text">
                <string/>
@@ -716,6 +932,11 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Spike color</string>
               </property>
@@ -734,6 +955,11 @@
                 <width>30</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
               </property>
               <property name="text">
                <string/>
@@ -754,6 +980,11 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>Marker color</string>
               </property>
@@ -773,6 +1004,11 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -786,6 +1022,11 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_3">
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="title">
          <string>Ticks and Ranges</string>
         </property>
@@ -809,6 +1050,7 @@
           <widget class="QLabel" name="label_15">
            <property name="font">
             <font>
+             <family>Serif</family>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -822,6 +1064,7 @@
           <widget class="QLabel" name="label_16">
            <property name="font">
             <font>
+             <family>Serif</family>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -838,6 +1081,11 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <family>Serif</family>
+            </font>
            </property>
            <layout class="QGridLayout" name="gridLayout_6">
             <property name="leftMargin">
@@ -857,6 +1105,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_17">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>min X</string>
               </property>
@@ -876,6 +1129,11 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="minimum">
                <double>-250.000000000000000</double>
               </property>
@@ -889,6 +1147,11 @@
             </item>
             <item row="0" column="2">
              <widget class="QLabel" name="label_18">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>max X</string>
               </property>
@@ -908,6 +1171,11 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="minimum">
                <double>-250.000000000000000</double>
               </property>
@@ -921,6 +1189,11 @@
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_20">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>min Y</string>
               </property>
@@ -940,6 +1213,11 @@
                 <height>30</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="minimum">
                <double>-5.000000000000000</double>
               </property>
@@ -953,6 +1231,11 @@
             </item>
             <item row="1" column="2">
              <widget class="QLabel" name="label_19">
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
+              </property>
               <property name="text">
                <string>max Y</string>
               </property>
@@ -971,6 +1254,11 @@
                 <width>0</width>
                 <height>30</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Serif</family>
+               </font>
               </property>
               <property name="minimum">
                <double>-5.000000000000000</double>
@@ -994,6 +1282,11 @@
    </item>
    <item alignment="Qt::AlignTop">
     <widget class="QFrame" name="frame_3">
+     <property name="font">
+      <font>
+       <family>Serif</family>
+      </font>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -1024,6 +1317,11 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -1040,6 +1338,11 @@
           <height>30</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="text">
          <string>Cancel</string>
         </property>
@@ -1053,6 +1356,11 @@
           <height>30</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
+        </property>
         <property name="text">
          <string>Apply</string>
         </property>
@@ -1065,6 +1373,11 @@
           <width>0</width>
           <height>30</height>
          </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Serif</family>
+         </font>
         </property>
         <property name="text">
          <string>OK</string>

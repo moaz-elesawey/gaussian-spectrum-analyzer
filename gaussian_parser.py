@@ -155,7 +155,7 @@ class Parser:
 class MESSAGE:
     ATOM_COUNT  = "Stoichiometry"
     GEOMETRY    = "Standard orientation:"
-    BOND        = "(Angstroms and Degrees)"
+    BOND        = "Optimized Parameters"
     SEPARATOR   = "GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"
 
 with open('data/HF_CEFOVECIN.LOG') as f:
@@ -223,7 +223,7 @@ def load_geometry_table(data):
     for idx, l in enumerate(data):
         
         if MESSAGE.BOND in l:
-            for gl in data[idx+4:]:
+            for gl in data[idx+5:]:
                 if 'R(' in gl:
                     bonds.append(list(map(int, re.findall(r'\d+,\d+', gl)[0].split(','))))
                 if MESSAGE.SEPARATOR in gl:
