@@ -138,8 +138,8 @@ class SpectrumAnalyzer(QDialog):
         self.style_dialog.spike_shape_select.currentIndexChanged.connect(
             lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='spike')
         )
-        self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(1))
-        self.ui.spectrum_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
+        # self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(1))
+        # self.ui.spectrum_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
 
         self.ui.close_btn.clicked.connect(self.close)
 
@@ -463,8 +463,6 @@ class SpectrumAnalyzer(QDialog):
         self.ui.export_formats_select.setDisabled(state)
         self.ui.zoom_out_btn.setDisabled(state)
         self.ui.tight_graph_btn.setDisabled(state)
-        self.ui.render_btn.setDisabled(state)
-        self.ui.spectrum_btn.setDisabled(state)
         self.spectrumGraph.setDisabled(state)
         self.graphToolbar.setDisabled(state)
 
