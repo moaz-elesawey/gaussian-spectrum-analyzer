@@ -1,5 +1,5 @@
 # Gaussian Spectrum Analyzer
-> Spectrum Analyzer or Gaussian Spectrum Analyzer is a GUI application used to visualize and create reports of the Gaussian View and Gaussian W calculations created in Python and Qt Library.
+Spectrum Analyzer or Gaussian Spectrum Analyzer is a GUI application used to visualize and create reports of the Gaussian View and Gaussian W calculations created in Python and Qt Library.
 
 ## Requirements
  - Qt 5
@@ -23,4 +23,4 @@ $ python SpectrumAnalyzer.py
 ![screenshot_1](./screenshots/screenshot_2.png)
 
 ## Info
-> You can install the precompiled version if you are in windows os
+You can install the precompiled version if you are in windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v1.0-alpha)
