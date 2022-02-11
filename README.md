@@ -26,4 +26,4 @@ $ python SpectrumAnalyzer.py
 ![screenshot_3](./screenshots/screenshot_3.png)
 
 ## Info
-You can install the compiled version if you are using windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v1.0-alpha)
+You can install the compiled version if you are using windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v2.0-alpha)
