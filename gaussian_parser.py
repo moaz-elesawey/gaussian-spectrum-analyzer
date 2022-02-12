@@ -176,9 +176,10 @@ class Atom:
         if Z == 8:
             color = [255, 0, 0, 1]
         elif Z == 6:
-            color = [10, 10, 10, 1]
+            color = [128,128,128, 1]
+            print('carbon')
         elif Z == 1:
-            color = [255, 255, 255, 1]
+            color = [156, 183, 242, 1]
         elif Z == 7:
             color = [0, 0, 255, 1]
         elif Z == 16:

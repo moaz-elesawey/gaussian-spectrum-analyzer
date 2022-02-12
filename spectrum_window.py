@@ -7,7 +7,6 @@ from PyQt5.QtGui import *
 
 from ui.ui_main import Ui_SpectrumAnalyzer
 from ui.ui_style import Ui_StyleDialog
-from ui.ui_splash import Ui_Form
 
 from matplotlib import pyplot
 from spectrum_graph import Properties, SpectrumGraph, Toolbar
@@ -28,7 +27,6 @@ class StyleDialog(QDialog, Ui_StyleDialog):
         self.setWindowTitle('Change Graph Style')
 
 
-
 class SpectrumAnalyzer(QDialog):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
@@ -40,8 +38,8 @@ class SpectrumAnalyzer(QDialog):
             Qt.WindowMaximizeButtonHint | 
             Qt.WindowMinimizeButtonHint
         )
-        self.setWindowIcon(QIcon("icons/spectrum-icon.png"))
-        self.setWindowTitle("Spectrum Analyzer")
+        self.setWindowIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'] ,"spectrum-icon.png")))
+        self.setWindowTitle("GSA Gaussian Spectrum Analyzer")
         self.resize(1280, 750)
 
         self.item_selected = False
