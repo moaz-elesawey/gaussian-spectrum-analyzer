@@ -158,9 +158,6 @@ class MESSAGE:
     BOND        = "Optimized Parameters"
     SEPARATOR   = "GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"
 
-with open('data/HF_CEFOVECIN.LOG') as f:
-    data = f.readlines()
-
 
 class Atom:
     def __init__(self, index, atomic_number, x, y, z) -> None:

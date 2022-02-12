@@ -189,7 +189,7 @@
                <property name="font">
                 <font>
                  <family>Serif</family>
-                 <pointsize>10</pointsize>
+                 <pointsize>9</pointsize>
                  <weight>75</weight>
                  <bold>true</bold>
                 </font>

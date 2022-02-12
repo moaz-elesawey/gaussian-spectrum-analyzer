@@ -88,7 +88,7 @@ class Ui_SpectrumAnalyzer(object):
         self.loaded_file_name.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Serif")
-        font.setPointSize(10)
+        font.setPointSize(9)
         font.setBold(True)
         font.setWeight(75)
         self.loaded_file_name.setFont(font)

@@ -20,20 +20,22 @@ class Ui_Form(object):
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.mainFrame = QtWidgets.QFrame(Form)
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        self.mainFrame.setFont(font)
         self.mainFrame.setStyleSheet("QFrame#mainFrame{\n"
 "    background-color: rgb(233, 238, 250);\n"
 "    border-radius: 10px;\n"
 "}\n"
 "QProgressBar#progress{\n"
-"    background-color: rgb(52, 101, 164);\n"
+"    background-color: rgb(92, 131, 164);\n"
 "    color: rgb(238, 238, 236);\n"
 "    border-radius: 10px;\n"
 "    text-align: center;\n"
 "}\n"
 "QProgressBar#progress:chunk{\n"
 "    border-radius: 10px;\n"
-"\n"
-"    background-color: qlineargradient(spread:pad, x1:0.477612, y1:0.465909, x2:1, y2:0.505682, stop:0 rgba(114, 159, 207, 255), stop:1 rgba(9, 22, 40, 255));\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0.494318, x2:0.856, y2:0.511364, stop:0 rgba(114, 159, 207, 255), stop:1 rgba(32, 81, 153, 255));\n"
 "}\n"
 "\n"
 "QLabel#loader{\n"
@@ -47,35 +49,52 @@ class Ui_Form(object):
         self.mainFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.mainFrame.setObjectName("mainFrame")
         self.title = QtWidgets.QLabel(self.mainFrame)
-        self.title.setGeometry(QtCore.QRect(160, -1, 100, 101))
+        self.title.setGeometry(QtCore.QRect(140, -1, 121, 101))
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        self.title.setFont(font)
         self.title.setObjectName("title")
         self.credit = QtWidgets.QLabel(self.mainFrame)
         self.credit.setGeometry(QtCore.QRect(6, 250, 621, 20))
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        self.credit.setFont(font)
         self.credit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.credit.setObjectName("credit")
         self.label_3 = QtWidgets.QLabel(self.mainFrame)
         self.label_3.setGeometry(QtCore.QRect(9, 190, 610, 20))
         font = QtGui.QFont()
+        font.setFamily("Sans Serif")
         font.setPointSize(12)
         self.label_3.setFont(font)
         self.label_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_3.setObjectName("label_3")
         self.loader = QtWidgets.QLabel(self.mainFrame)
-        self.loader.setGeometry(QtCore.QRect(10, 120, 591, 20))
+        self.loader.setGeometry(QtCore.QRect(10, 120, 611, 20))
         font = QtGui.QFont()
+        font.setFamily("Sans Serif")
         font.setPointSize(13)
         self.loader.setFont(font)
         self.loader.setAlignment(QtCore.Qt.AlignCenter)
         self.loader.setObjectName("loader")
         self.progress = QtWidgets.QProgressBar(self.mainFrame)
         self.progress.setGeometry(QtCore.QRect(7, 160, 611, 23))
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        self.progress.setFont(font)
         self.progress.setProperty("value", 24)
         self.progress.setObjectName("progress")
         self.title_2 = QtWidgets.QLabel(self.mainFrame)
-        self.title_2.setGeometry(QtCore.QRect(280, 0, 291, 101))
+        self.title_2.setGeometry(QtCore.QRect(260, 0, 351, 101))
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        self.title_2.setFont(font)
         self.title_2.setObjectName("title_2")
         self.title_3 = QtWidgets.QLabel(self.mainFrame)
-        self.title_3.setGeometry(QtCore.QRect(50, 0, 121, 101))
+        self.title_3.setGeometry(QtCore.QRect(20, 0, 121, 101))
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        self.title_3.setFont(font)
         self.title_3.setText("")
         self.title_3.setPixmap(QtGui.QPixmap("ui/../icons/spectrum-icon.png"))
         self.title_3.setObjectName("title_3")
@@ -88,8 +107,8 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
         self.title.setText(_translate("Form", "<html><head/><body><p align=\"right\"><span style=\" font-size:36pt; font-weight:600; color:#204a87;\">GSA </span></p></body></html>"))
-        self.credit.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:10pt; font-weight:600; color:#3465a4;\">Created By</span>: <span style=\" font-size:12pt; font-weight:600; color:#204a87;\">Moaz Mohammed El-Essawey</span></p></body></html>"))
-        self.label_3.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:10pt; color:#204a87;\">loading...</span></p></body></html>"))
+        self.credit.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:10pt; font-weight:600; color:#3465a4;\">Created By</span>: <span style=\" font-weight:600; color:#204a87;\">Moaz Mohammed El-Essawey</span></p></body></html>"))
+        self.label_3.setText(_translate("Form", "<html><head/><body><p><span style=\" color:#204a87;\">loading...</span></p></body></html>"))
         self.loader.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-size:12pt; font-weight:600; color:#204a87;\">LOADING DATABASE</span></p></body></html>"))
         self.title_2.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600; color:#3465a4;\">Gaussian Spectrum Analyzer</span></p></body></html>"))
 

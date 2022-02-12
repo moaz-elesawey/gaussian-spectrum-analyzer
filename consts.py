@@ -8,3 +8,8 @@ EXPORT_FORMATS = [
 LINESTYLES = [
     '-', '--', '-.', ':'
 ]
+
+PATHS = {
+    'icons': 'icons/',
+    'ui': 'ui/'
+}
