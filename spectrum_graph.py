@@ -63,9 +63,12 @@ class SpectrumGraph(FigureCanvasQTAgg):
 
         self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)
         self.ax.set_xlim((-300, 4200))
+        self.ax.minorticks_on()
         self.draw()
 
     def removeBroadening(self, p):
+        self.ax.minorticks_on()
+
         if len(self.ints) == 0: return
         if self._broaden:
             l = self._broaden.pop(0)
@@ -80,6 +83,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
 
     def applyBroadening(self, p):
         self.removeBroadening(p)
+        
         if len(self.ints) == 0 or len(self.freq) == 0: return
 
         x= np.linspace(min(self.freq)-200, max(self.freq)+200, num=800, endpoint=True)
@@ -135,19 +139,3 @@ class Properties:
         self.padding_bottom  = 0.13
         self.padding_left    = 0.13
         self.padding_right   = 0.98
-
-    @property
-    def xlim(self):
-        return self._xlim
-
-    @xlim.setter
-    def xlim(self, xlim):
-        self._xlim = xlim[0]-200, xlim[1]+200
-
-    @property
-    def ylim(self):
-        return self._ylim
-
-    @ylim.setter
-    def ylim(self, ylim):
-        self._ylim = ylim[0]-2, ylim[1]+8

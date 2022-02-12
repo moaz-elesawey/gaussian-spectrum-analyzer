@@ -228,6 +228,7 @@ class Ui_SpectrumAnalyzer(object):
         self.export_graph_btn.setObjectName("export_graph_btn")
         self.horizontalLayout_6.addWidget(self.export_graph_btn)
         self.export_formats_select = QtWidgets.QComboBox(self.frame_4)
+        self.export_formats_select.setMinimumSize(QtCore.QSize(0, 28))
         font = QtGui.QFont()
         font.setFamily("Serif")
         font.setPointSize(10)

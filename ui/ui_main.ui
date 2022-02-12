@@ -267,7 +267,7 @@
             <property name="currentIndex">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="spectrumFrame" native="true">
+            <widget class="QWidget" name="spectrumFrame">
              <attribute name="title">
               <string>Spectrum Graph</string>
              </attribute>
@@ -289,7 +289,7 @@
               </property>
              </layout>
             </widget>
-            <widget class="QWidget" name="render_frame" native="true">
+            <widget class="QWidget" name="render_frame">
              <attribute name="title">
               <string>3D Model</string>
              </attribute>
@@ -507,6 +507,12 @@
                </item>
                <item>
                 <widget class="QComboBox" name="export_formats_select">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>28</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <family>Serif</family>

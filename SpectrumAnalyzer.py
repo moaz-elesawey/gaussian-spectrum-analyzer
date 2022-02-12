@@ -1,18 +1,19 @@
 import sys
+from time import time
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from matplotlib import pyplot
 
 from ui.ui_main import Ui_SpectrumAnalyzer
 from ui.ui_style import Ui_StyleDialog
+from ui.ui_splash import Ui_Form
+
+from matplotlib import pyplot
 from spectrum_graph import Properties, SpectrumGraph, Toolbar
 from gaussian_parser import Parser, get_position_table, load_geometry_table
 from consts import EXPORT_FORMATS, LINESTYLES
 
 import pyqtgraph.opengl as gl
-
-
 import numpy as np
 
 
@@ -22,6 +23,55 @@ class StyleDialog(QDialog, Ui_StyleDialog):
 
         self.setupUi(self)
         self.setWindowTitle('Change Graph Style')
+
+
+counter = 0
+
+class SplashScreen(QWidget):
+    packages_loaded = False
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
+
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.SplashScreen | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+        self.shadow = QGraphicsDropShadowEffect(self)
+        self.shadow.setBlurRadius(20)
+        self.shadow.setXOffset(0)
+        self.shadow.setYOffset(0)
+        self.shadow.setColor(QColor(0,0,0, 60))
+        self.ui.mainFrame.setGraphicsEffect(self.shadow)
+
+    
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.trigger_progress)
+        self.timer.start(35)
+
+        self.timer.singleShot(0, lambda: self.ui.loader.setText('<strong>WELCOME</strong> to <strong>GSA</strong>'))
+        self.timer.singleShot(1500, lambda: self.ui.loader.setText('<strong>LOADING</strong> PACKAGES'))
+        self.timer.singleShot(3000, lambda: self.ui.loader.setText('<strong>LOADING</strong> USER INTERFACE'))
+
+        self.show()
+
+    def trigger_progress(self):
+        global counter
+
+        self.ui.progress.setValue(counter)
+
+        if counter > 100:
+            self.timer.stop()
+
+            self.main_win = SpectrumAnalyzer()
+            self.main_win.show()
+
+            self.close()
+
+        counter += 1
+
 
 
 class SpectrumAnalyzer(QDialog):
@@ -151,14 +201,14 @@ class SpectrumAnalyzer(QDialog):
         self.ui.broadening_select.setDisabled(not state)
         self.ui.label.setDisabled(not state)
 
-        if not self.spectrumGraph._broaden:
-            self.spectrumGraph.applyBroadening(self.p)
-
         if not state:
             self.spectrumGraph.removeBroadening(self.p)
+            self.spectrumGraph.draw()
+            return
         else:
             self.spectrumGraph.applyBroadening(self.p)
-        self.spectrumGraph.draw()
+            self.spectrumGraph.draw()
+            return
 
         self.ui.broadening_inp.setText(str(self.ui.broadening_slider.value()))
 
@@ -190,7 +240,6 @@ class SpectrumAnalyzer(QDialog):
     def trigger_broadening_slider(self, broad):
         self.p.broaden_sigma = broad
         self.spectrumGraph.applyBroadening(self.p)
-        self.ui.broadening_inp.setText(str(broad))
 
     def trigger_broadening_text(self, sigma):
         try:
@@ -276,7 +325,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.intensity_label.setText(str((round(x, 3), round(y, 3))))
     
     def trigger_open_file(self):
-        filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  './data/',"Gaussian files (*.LOG)")
+        filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
         if filename:
             self.spectrumGraph.ax.cla()
             self.spectrumGraph.draw()
@@ -405,7 +454,7 @@ class SpectrumAnalyzer(QDialog):
             self.spectrumGraph._broaden[0].set_lw(self.p.broaden_width)
             self.spectrumGraph._broaden[0].set_ls(self.p.broaden_style)
             self.spectrumGraph._broaden[0].set_color(self.p.broaden_color)
-        
+        self.spectrumGraph.fig.tight_layout()
         self.spectrumGraph.draw()
 
     def trigger_pick_color(self, which):
@@ -514,13 +563,13 @@ class SpectrumAnalyzer(QDialog):
 
         for atom in struct1:
             md = gl.MeshData.sphere(rows=50, cols=50)
-            m3 = gl.GLMeshItem(meshdata=md, smooth=False, shader='shaded')
+            m3 = gl.GLMeshItem(meshdata=md, smooth=False, shader='shaded', color=atom.color)
             m3.translate(atom.x, atom.y, atom.z)
             m3.scale(.4, .4, .4)
             self.viewer.addItem(m3)
 
-            txtitem2 = gl.GLTextItem()
-            txtitem2.setData(pos=(atom.x, atom.y, atom.z), color=(255, 0, 0, 255), text=str(int(atom.index)))
+            # txtitem2 = gl.GLTextItem()
+            # txtitem2.setData(pos=(atom.x, atom.y, atom.z), color=(255, 0, 0, 255), text=str(int(atom.index)))
             # self.viewer.addItem(txtitem2)
 
     @staticmethod
@@ -560,6 +609,5 @@ class SpectrumAnalyzer(QDialog):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    # app.setStyle('Windows')
-    win = SpectrumAnalyzer()
+    sp = SplashScreen()
     sys.exit(app.exec())
