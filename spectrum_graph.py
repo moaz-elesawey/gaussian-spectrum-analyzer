@@ -78,7 +78,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
             if xmin == xmax:
                 xmin = 0
             p.ylim = (xmin, xmax)
-            self.ax.set_ylim(p.ylim)
+            self.ax.set_ylim([-2.4, 106])
         self.draw()
 
     def applyBroadening(self, p):
@@ -102,7 +102,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         if xmin == xmax:
             xmin = 0
         p.ylim = (xmin, xmax)
-        self.ax.set_ylim(p.ylim)
+        self.ax.set_ylim([-2.4, 106])
         self.ax.set_xlim(min(x), max(x))
 
         self.draw()

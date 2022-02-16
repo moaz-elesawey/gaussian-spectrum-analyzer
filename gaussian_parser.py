@@ -1,5 +1,6 @@
 import re
 import numpy as np
+from pprint import pprint
 
 
 class SIGNAL:
@@ -12,6 +13,8 @@ class SIGNAL:
     depolar_u       = " Depolar (U) -- "
     nmr_sheilding   = " Isotropic =   "
     uv_signal       = " Excited State   "
+    ATOM_COUNT      = "Stoichiometry"
+    ANIMATION       = " Atom AN      X      Y      Z        X      Y      Z        X      Y      Z"
 
 
 class NMRSignal:
@@ -152,6 +155,7 @@ class Parser:
 
         return uv_spectrum
 
+
 class MESSAGE:
     ATOM_COUNT  = "Stoichiometry"
     GEOMETRY    = "Standard orientation:"
@@ -160,9 +164,10 @@ class MESSAGE:
 
 
 class Atom:
-    def __init__(self, index, atomic_number, x, y, z) -> None:
+    def __init__(self, index, atomic_number, v, x, y, z) -> None:
         self.index = int(index)
         self.atomic_number = int(atomic_number)
+        self.v = v
         self.x = x
         self.y = y
         self.z = z
@@ -177,11 +182,10 @@ class Atom:
             color = [255, 0, 0, 1]
         elif Z == 6:
             color = [128,128,128, 1]
-            print('carbon')
         elif Z == 1:
-            color = [156, 183, 242, 1]
+            color = [0, 0, 242, 1]
         elif Z == 7:
-            color = [0, 0, 255, 1]
+            color = [255, 0, 255, 1]
         elif Z == 16:
             color = [255, 255, 0, 1]
 
@@ -190,6 +194,9 @@ class Atom:
     @property
     def pos(self):
         return self.x, self.y, self.z
+
+    def __repr__(self) -> str:
+        return f'Atom({self.index}, {self.atomic_number})'
 
 class Bond:
     def __init__(self, l:int, r:int) -> None:
@@ -211,11 +218,14 @@ def format_table(table):
     _RE_COMBINE_WHITESPACE = re.compile(r"\s+")
 
     for l in table:
-        tb_l = l.strip().replace('\n', '')
-        trimmed_l = _RE_COMBINE_WHITESPACE.sub(",", tb_l).strip().lstrip()
-        ent = list(map(float, trimmed_l.split(',')))
-        atom = Atom(ent[0], ent[1], ent[3], ent[4], ent[5])
-        tb.append(atom)
+        try:
+            tb_l = l.strip().replace('\n', '')
+            trimmed_l = _RE_COMBINE_WHITESPACE.sub(",", tb_l).strip().lstrip()
+            ent = list(map(float, trimmed_l.split(',')))
+            atom = Atom(ent[0], ent[1], ent[2], ent[3], ent[4], ent[5])
+            tb.append(atom)
+        except Exception as e:
+            print(str(e))
 
     return tb
 
@@ -227,10 +237,9 @@ def get_position_table(data):
 
     for idx, l in enumerate(data):
         if MESSAGE.GEOMETRY in l:
-            table = data[idx+5:idx+atoms_count+5]
+            table = data[idx+5:idx+atoms_count+10]
             table = format_table(table)
             geom_tables.append(table)
-
     return geom_tables
 
 

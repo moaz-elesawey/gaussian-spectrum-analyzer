@@ -512,7 +512,7 @@ class SpectrumAnalyzer(QDialog):
 
         struct1 = geom_tables[0]
         bonds = load_geometry_table(data)
-
+        
         for idx, b in enumerate(bonds):
             l = struct1[b[0]-1]
             r = struct1[b[1]-1]
