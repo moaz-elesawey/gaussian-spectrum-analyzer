@@ -23,7 +23,7 @@ $ python SpectrumAnalyzer.py
 ![screenshot_2](./screenshots/screenshot_2.png)
 
 ### 3D Render
-![screenshot_3](./screenshots/screenshot_3.png)
+![screenshot_3](./screenshots/screenshot_4.png)
 
 ## Info
 You can install the compiled version if you are using windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v2.0-alpha)
