@@ -638,7 +638,7 @@ class Ui_SpectrumAnalyzer(object):
         self.hide_verticals_check.setText(_translate("SpectrumAnalyzer", "Hide spikes"))
         self.scale_curve_check.setText(_translate("SpectrumAnalyzer", "Scale curve"))
         self.scale_curve_btn.setText(_translate("SpectrumAnalyzer", "OK"))
-        self.spectrum_table.setSortingEnabled(False)
+        self.spectrum_table.setSortingEnabled(True)
         self.scale_x_check.setText(_translate("SpectrumAnalyzer", "Scale X"))
         self.help_btn.setText(_translate("SpectrumAnalyzer", "Help"))
         self.show_numbers_check.setText(_translate("SpectrumAnalyzer", "Show numbers"))

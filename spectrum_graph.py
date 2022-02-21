@@ -86,7 +86,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         
         if len(self.ints) == 0 or len(self.freq) == 0: return
 
-        x= np.linspace(min(self.freq)-200, max(self.freq)+200, num=800, endpoint=True)
+        x= np.linspace(min(self.freq)-200, max(self.freq)+200, num=1000, endpoint=True)
 
         gInts = []
         for Fi in x:

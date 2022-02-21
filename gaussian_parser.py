@@ -179,17 +179,20 @@ class Atom:
         color = [125, 125, 125, 1]
 
         if Z == 8:
-            color = [255, 0, 0, 1]
+            color = [1, 0, 0, 1]
         elif Z == 6:
-            color = [128,128,128, 1]
+            color = [.2, .2, .2, 1]
         elif Z == 1:
-            color = [0, 0, 242, 1]
+            color = [1, 1, 1, 1]
         elif Z == 7:
-            color = [255, 0, 255, 1]
+            color = [0, 0, 1, 1]
         elif Z == 16:
-            color = [255, 255, 0, 1]
+            color = [1, 1, 0, 1]
 
         return np.array(color)
+        
+    def get_object(self):
+        return {'index': self.index, "x": self.x, "y": self.y, "z": self.z, "atomicNumber": self.atomic_number}
 
     @property
     def pos(self):

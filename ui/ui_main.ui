@@ -972,7 +972,7 @@
              <enum>Qt::SolidLine</enum>
             </property>
             <property name="sortingEnabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <attribute name="horizontalHeaderCascadingSectionResizes">
              <bool>false</bool>

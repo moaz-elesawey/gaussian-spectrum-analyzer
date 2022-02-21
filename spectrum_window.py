@@ -13,8 +13,10 @@ from spectrum_graph import Properties, SpectrumGraph, Toolbar
 from gaussian_parser import Parser, get_position_table, load_geometry_table
 from consts import EXPORT_FORMATS, LINESTYLES, PATHS
 
+import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import numpy as np
+import json
 
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -497,6 +499,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.spectrum_table.setHorizontalHeaderLabels(header)
 
         for idx, (f, i) in enumerate(zip(freq, ints)):
+            # self.ui.spectrum_table.setItem(idx, 0, QTableWidgetItem(idx+1))
             self.ui.spectrum_table.setItem(idx, 0, QTableWidgetItem("{:10.4f}".format(f)))
             self.ui.spectrum_table.setItem(idx, 1, QTableWidgetItem("{:10.4f}".format(i)))
 
@@ -505,13 +508,24 @@ class SpectrumAnalyzer(QDialog):
 
         self.viewer.clear()
 
+        self.viewer.setBackgroundColor("#292929")
+
         with open(filename) as f:
             data = f.readlines()
 
         geom_tables = np.array(get_position_table(data))
 
         struct1 = geom_tables[0]
+        json_objects = {}
+        atoms_list = [atm.get_object() for atm in struct1]
         bonds = load_geometry_table(data)
+        
+        # json_objects['atoms'] = atoms_list
+        # json_objects['bonds'] = bonds
+
+        # with open('compound.json', 'w') as w:
+        #     json.dump(json_objects, w, indent=4)
+        
         
         for idx, b in enumerate(bonds):
             l = struct1[b[0]-1]
