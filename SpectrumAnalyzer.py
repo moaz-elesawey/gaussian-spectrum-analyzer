@@ -65,7 +65,6 @@ class SplashScreen(QWidget):
         pass
 
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     sp = SplashScreen()

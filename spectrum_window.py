@@ -1,5 +1,6 @@
 
 import os
+import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -10,7 +11,7 @@ from ui.ui_style import Ui_StyleDialog
 
 from matplotlib import pyplot
 from spectrum_graph import Properties, SpectrumGraph, Toolbar
-from gaussian_parser import Parser, get_position_table, load_geometry_table
+from gaussian_parser import Parser
 from consts import EXPORT_FORMATS, LINESTYLES, PATHS
 
 import pyqtgraph as pg
@@ -49,8 +50,9 @@ class SpectrumAnalyzer(QDialog):
 
         self.p = Properties()
 
-        self.x_signals = []
-        self.y_signals = []
+        self.compound = []
+        self.original_compound = []
+        self.grid_toggled = False
 
         # init Ui Components
         self.uiComponents()
@@ -67,6 +69,8 @@ class SpectrumAnalyzer(QDialog):
         self.spectrumGraph = SpectrumGraph()
 
         self.viewer = gl.GLViewWidget()
+        self.viewer_grid = gl.GLGridItem()
+        # self.animationTimer = QTimer(self)
         
         self.graphToolbar = Toolbar(self.spectrumGraph, self.ui.spectrumFrame)
         self.style_dialog = StyleDialog()
@@ -115,7 +119,10 @@ class SpectrumAnalyzer(QDialog):
         self.viewer.setWindowTitle('STL Viewer')
         self.viewer.setCameraPosition(distance=25)
         self.ui.renderLayout.addWidget(self.viewer)
-
+        
+        self.ui.start_animation_btn.setMinimumWidth(0)
+        self.ui.start_animation_btn.setText('')
+        self.ui.start_animation_btn.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'] ,"grid_icon.png")))
 
     def initActions(self):
         self.ui.broadening_check.toggled.connect(self.toggle_broadening)
@@ -154,6 +161,9 @@ class SpectrumAnalyzer(QDialog):
         # self.ui.spectrum_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
 
         self.ui.close_btn.clicked.connect(self.close)
+
+        # self.animationTimer.timeout.connect(self.animate)
+        self.ui.start_animation_btn.clicked.connect(self.toggle_grid)
 
     # togglers
     def toggle_broadening(self, state):
@@ -194,6 +204,14 @@ class SpectrumAnalyzer(QDialog):
 
     def toggle_hide_verticals(self, state):
         self.spectrumGraph.togglePeaks(state, self.p.spikes_color)
+
+    def toggle_grid(self):
+        if self.grid_toggled:
+            self.viewer.removeItem(self.viewer_grid)
+            self.grid_toggled = False
+        else:
+            self.viewer.addItem(self.viewer_grid)
+            self.grid_toggled = True
 
     def trigger_tight_layout(self):
         self.spectrumGraph.fig.tight_layout()
@@ -285,6 +303,15 @@ class SpectrumAnalyzer(QDialog):
         idx = self.ui.spectrum_table.selectedIndexes()[-1].row()
         x, y = self.spectrumGraph.freq[idx], self.spectrumGraph.ints[idx]
         self.ui.intensity_label.setText(str((round(x, 3), round(y, 3))))
+
+        # selected_animation = self.parser.animations[idx]
+        # print(selected_animation)
+        # for idx, entry in enumerate(selected_animation):
+        #     # op = self.original_compound[idx]
+        #     # print(dir(op))
+        #     self.compound[idx].translate(*self.original_compound[idx].pos)
+        #     self.compound[idx].translate(*entry)
+
     
     def trigger_open_file(self):
         filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
@@ -456,7 +483,6 @@ class SpectrumAnalyzer(QDialog):
             self.ui.render_btn.setText('Spectrum Graph')
             self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
         
-
     def setState(self, state):
         self.ui.broadening_check.setDisabled(state)
         self.ui.spectrum_table.setDisabled(state)
@@ -474,6 +500,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.export_formats_select.setDisabled(state)
         self.ui.zoom_out_btn.setDisabled(state)
         self.ui.tight_graph_btn.setDisabled(state)
+        self.ui.start_animation_btn.setDisabled(state)
         self.spectrumGraph.setDisabled(state)
         self.graphToolbar.setDisabled(state)
 
@@ -483,7 +510,7 @@ class SpectrumAnalyzer(QDialog):
 
     def applyLoadedData(self, filename):
         self.load_ir_data(filename)
-        self.load_and_render(filename)
+        self.load_and_render()
         
         # apply to table
         self.populateTable(self.parser.freq, self.parser.ir_ints)
@@ -504,47 +531,55 @@ class SpectrumAnalyzer(QDialog):
             self.ui.spectrum_table.setItem(idx, 1, QTableWidgetItem("{:10.4f}".format(i)))
 
 
-    def load_and_render(self, filename):
+    def load_and_render(self):
 
         self.viewer.clear()
+        self.compound = []
+        self.compound_bonds = []
 
-        self.viewer.setBackgroundColor("#292929")
+        self.viewer.setBackgroundColor("#111111")
+        self.viewer.setCameraPosition(distance=20)
 
-        with open(filename) as f:
-            data = f.readlines()
-
-        geom_tables = np.array(get_position_table(data))
+        geom_tables = np.array(self.parser.get_position_table())
 
         struct1 = geom_tables[0]
-        json_objects = {}
-        atoms_list = [atm.get_object() for atm in struct1]
-        bonds = load_geometry_table(data)
-        
-        # json_objects['atoms'] = atoms_list
-        # json_objects['bonds'] = bonds
-
-        # with open('compound.json', 'w') as w:
-        #     json.dump(json_objects, w, indent=4)
-        
+        bonds = self.parser.load_geometry_table()
+        # json_objects = {}
+        # atoms_list = [atm.get_object() for atm in struct1]
         
         for idx, b in enumerate(bonds):
             l = struct1[b[0]-1]
             r = struct1[b[1]-1]
-
-            plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=True)
+            plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=False, color="#dcdfe0")
             self.viewer.addItem(plt)
-
+            self.compound_bonds.append(plt)
 
         for atom in struct1:
-            md = gl.MeshData.sphere(rows=50, cols=50)
+            md = gl.MeshData.sphere(rows=40, cols=40)
             m3 = gl.GLMeshItem(meshdata=md, smooth=False, shader='shaded', color=atom.color)
-            m3.translate(atom.x, atom.y, atom.z)
+            m3.translate(atom.x, atom.y, atom.z, local=True)
             m3.scale(.4, .4, .4)
             self.viewer.addItem(m3)
+            self.compound.append(m3)
+            self.original_compound.append(atom)
 
             # txtitem2 = gl.GLTextItem()
             # txtitem2.setData(pos=(atom.x, atom.y, atom.z), color=(255, 0, 0, 255), text=str(int(atom.index)))
             # self.viewer.addItem(txtitem2)
+    
+    def animate(self):
+        for idx, atom in enumerate(self.compound):
+            # atom.resetTransform()
+            print('updating')
+            old_pos = []
+            for old, new in zip(self.original_compound[idx].pos, self.parser.animations[0][idx]):
+                old_pos.append(old-new)
+            atom.translate(*old_pos, local=True)
+
+            new_pos = []
+            for old, new in zip(self.original_compound[idx].pos, self.parser.animations[0][idx]):
+                new_pos.append(old+new)
+            atom.translate(*new_pos, local=True)
 
     @staticmethod
     def generate_broadening_for_export(sigma, freq, ints):
@@ -580,3 +615,8 @@ class SpectrumAnalyzer(QDialog):
             event.ignore()
         else:
             pass
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    sp = SpectrumAnalyzer()
+    sys.exit(app.exec())
