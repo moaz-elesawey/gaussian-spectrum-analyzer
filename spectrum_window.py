@@ -352,8 +352,8 @@ class SpectrumAnalyzer(QDialog):
 
         if not self.ui.hide_verticals_check.isChecked():
             ax.vlines(
-                self.spectrumGraph.freq, ymin=0, ymax=self.spectrumGraph.ints,
-                colors=self.p.spikes_color, label='Intensity peaks' 
+                self.spectrumGraph.freq, ymin=100, ymax=100-self.spectrumGraph.ints,
+                colors=self.p.spikes_color, label='Peaks' 
             )
         if self.ui.broadening_check.isChecked():
             x, gInts = self.generate_broadening_for_export(
@@ -361,25 +361,29 @@ class SpectrumAnalyzer(QDialog):
                 self.spectrumGraph.freq,
                 self.spectrumGraph.ints
             )
+            gInts = (1-(gInts/gInts.max()))*100
             ax.plot(
                 x, gInts, color=self.p.broaden_color, 
                 linewidth=self.p.broaden_width, 
                 linestyle=self.p.broaden_style,
-                label='Gaussian Broaden'
+                label='Spectrum'
             )
 
-        ax.set_xlim(self.p.xlim)
-        ax.set_ylim(self.p.ylim)
-        ax.set_xticks(np.arange(-250, 4001, 250), fontsize=14)
+        ax.set_ylim([-3, 106])
+        ax.set_xticks(np.arange(-250, 4251, 250), fontsize=14)
         ax.set_yticks(np.arange(0, 101, 10), fontsize=self.style_dialog.fontsize_inp.value())
         ax.set_xlabel(self.style_dialog.xlabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
         ax.set_ylabel(self.style_dialog.ylabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
         ax.set_title(self.style_dialog.title_inp.text(), fontsize=self.style_dialog.fontsize_inp.value()+2)
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        leg = ax.legend(loc='best', frameon=False, fontsize=self.style_dialog.fontsize_inp.value())
-
-        # fig.tight_layout()
+        ax.spines["top"].set_visible(True)
+        ax.spines["right"].set_visible(True)
+        ax.minorticks_on()
+        ax.tick_params(which='major', length=5, direction='in', left=True,right=False,top=False,bottom=True)
+        ax.tick_params(which='minor', length=2.5, direction='in', left=True,right=False,top=False,bottom=True)
+        leg = ax.legend(loc='lower left', ncol=2, frameon=True, fancybox=False, fontsize=self.style_dialog.fontsize_inp.value())
+        ax.invert_xaxis()
+        ax.set_xlim(self.p.xlim)
+        fig.tight_layout()
         fig.savefig(filename.split('.')[0]+'.{}'.format(self.ui.export_formats_select.currentText().lower()))
 
     def trigger_change_style(self):
@@ -417,7 +421,7 @@ class SpectrumAnalyzer(QDialog):
         self.p.xlabel = sd.xlabel_inp.text()
         self.p.ylabel = sd.ylabel_inp.text()
 
-        self.p.xlim = sd.xlim_min.value(), sd.xlim_max.value()
+        self.p.xlim = sd.xlim_max.value(), sd.xlim_min.value()
         self.p.ylim = sd.ylim_min.value(), sd.ylim_max.value()
 
         self.spectrumGraph.fig.subplots_adjust(
@@ -591,7 +595,6 @@ class SpectrumAnalyzer(QDialog):
             gInts.append(gI)
         
         gInts = np.array(gInts)
-        gInts = (gInts/gInts.max())*100
 
         return x, gInts
 

@@ -40,30 +40,33 @@ class SpectrumGraph(FigureCanvasQTAgg):
     def PlotData(self, freq:np.ndarray, ints:np.ndarray):
         self.freq = freq
         self.ints = ints
+
         if len(self.freq) != len(self.ints): return
-        self.peaks_plot = self.ax.vlines(self.freq, ymin=0, ymax=self.ints, colors='k', label='Intensities Peaks')
+        self.peaks_plot = self.ax.vlines(self.freq, ymin=100, ymax=100-self.ints, colors='#292929', label='Peaks')
         
         # self.ax.set_ylim([min(self.ints), max(self.ints)])
         if not len(self.freq) == 0:
-            self.ax.set_xlim(min(self.freq), max(self.freq))
+            self.ax.set_xlim(max(self.freq), min(self.freq))
 
         self.draw()
 
     def initStyle(self):
         # if len(self.ints) == 0: return
 
-        self.fig.subplots_adjust(top=0.90, left=0.09, right=1, bottom=0.13)
+        self.fig.subplots_adjust(top=0.90, left=0.09, right=0.97, bottom=0.13)
 
-        self.ax.spines["top"].set_visible(False)
-        self.ax.spines["right"].set_visible(False)
-
+        self.ax.spines["top"].set_visible(True)
+        self.ax.spines["right"].set_visible(True)
+        self.ax.minorticks_on()
+        self.ax.tick_params(which='major', length=6, direction='out', left=True,right=False,top=False,bottom=True)
+        self.ax.tick_params(which='minor', length=3, direction='out', left=True,right=False,top=False,bottom=True)
         self.ax.set_xlabel('Wavenumber $(cm^{-1})$', fontsize=10)
         self.ax.set_ylabel('Intensity ($\epsilon$)', fontsize=10)
         self.fig.suptitle('IR Spectrum of #', fontsize=14)
 
         self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)
-        self.ax.set_xlim((-300, 4200))
-        self.ax.minorticks_on()
+        self.ax.invert_xaxis()
+        self.ax.set_xlim((4200, -300))
         self.draw()
 
     def removeBroadening(self, p):
@@ -74,10 +77,10 @@ class SpectrumGraph(FigureCanvasQTAgg):
             l = self._broaden.pop(0)
             l.remove()
 
-            xmin, xmax = min(self.ints), max(self.ints)
-            if xmin == xmax:
-                xmin = 0
-            p.ylim = (xmin, xmax)
+            ymin, ymax = min(self.ints), max(self.ints)
+            if ymin == ymax:
+                ymin = 0
+            p.ylim = (ymin, ymax)
             self.ax.set_ylim([-2.4, 106])
         self.draw()
 
@@ -94,16 +97,16 @@ class SpectrumGraph(FigureCanvasQTAgg):
             gInts.append(gI)
         
         gInts = np.array(gInts)
-        gInts = (gInts/gInts.max())*100
+        gInts = (1-(gInts/gInts.max()))*100
         self._broaden = self.ax.plot(x, gInts, color=p.broaden_color, linestyle=p.broaden_style, 
-                linewidth=p.broaden_width, label='Smoothed Data')
+                linewidth=p.broaden_width, label='Spectrum')
         
         xmin, xmax = gInts.min(), gInts.max()
         if xmin == xmax:
             xmin = 0
         p.ylim = (xmin, xmax)
         self.ax.set_ylim([-2.4, 106])
-        self.ax.set_xlim(min(x), max(x))
+        self.ax.set_xlim(max(x), min(x))
 
         self.draw()
 
@@ -126,7 +129,7 @@ class Properties:
         self.broaden_style   = '-'
         self.broaden_width   = 1
         self.broaden_sigma   = 40
-        self.spikes_color    = '#000000'
+        self.spikes_color    = '#292929'
         self.spikes_style    = '-'
         self.spikes_width    = 1
         self.xlim            = -250, 4200
