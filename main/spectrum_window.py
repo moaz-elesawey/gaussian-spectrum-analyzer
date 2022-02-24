@@ -538,6 +538,7 @@ class SpectrumAnalyzer(QDialog):
     def load_and_render(self):
 
         self.viewer.clear()
+        self.grid_toggled = False
         self.compound = []
         self.compound_bonds = []
 
