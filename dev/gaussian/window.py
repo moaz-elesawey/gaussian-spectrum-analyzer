@@ -10,7 +10,7 @@ from ui import Ui_SpectrumAnalyzer, Ui_StyleDialog
 
 from matplotlib import pyplot
 from gaussian import SpectrumGraph, Toolbar, Properties, Parser
-from utils import EXPORT_FORMATS, LINESTYLES, PATHS
+from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR
 
 import pyqtgraph.opengl as gl
 import numpy as np
@@ -18,8 +18,6 @@ import numpy as np
 # import pyqtgraph as pg
 # import json
 
-
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class StyleDialog(QDialog, Ui_StyleDialog):
     def __init__(self, *a, **kw):

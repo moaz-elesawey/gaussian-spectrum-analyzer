@@ -1,5 +1,8 @@
+import os
 import numpy as np
 
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class MESSAGE:
     FREQUENCY       = " Frequencies -- "
