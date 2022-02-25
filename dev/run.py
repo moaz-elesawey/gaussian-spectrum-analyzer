@@ -1,9 +1,9 @@
 import sys
 import os
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QApplication
+from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtGui import QColor, QPixmap
 
 import importlib
 
@@ -37,13 +37,12 @@ class SplashScreen(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.trigger_progress)
-        self.timer.start(30)
+        self.timer.start(10)
 
         self.timer.singleShot(0, lambda: self.ui.loader.setText('<strong>WELCOME</strong> to <strong>GSA</strong>'))
-        self.timer.singleShot(1000, lambda: self.ui.loader.setText('<strong>LOADING</strong> PACKAGES'))
-        self.timer.singleShot(2500, lambda: self.ui.loader.setText('<strong>LOADING</strong> USER INTERFACE'))
+        self.timer.singleShot(500, lambda: self.ui.loader.setText('<strong>LOADING</strong> PACKAGES'))
+        self.timer.singleShot(750, lambda: self.ui.loader.setText('<strong>LOADING</strong> USER INTERFACE'))
 
-        self.timer.singleShot(1750, self.trigger_load_packages)
         self.show()
 
     def trigger_progress(self):
@@ -54,17 +53,13 @@ class SplashScreen(QWidget):
         if counter > 100:
             self.timer.stop()
 
-            from gaussian import SpectrumAnalyzer
-            self.main_win = SpectrumAnalyzer()
+            gsa = importlib.import_module('gaussian')
+            self.main_win = gsa.SpectrumAnalyzer()
             self.main_win.show()
 
             self.close()
 
         counter += 1
-
-    def trigger_load_packages(self):
-        from gaussian import SpectrumAnalyzer
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -1,6 +1,6 @@
+import importlib
 import os
-import numpy as np
-
+from numpy import arange
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -19,60 +19,12 @@ class MESSAGE:
     GEOMETRY        = "Standard orientation:"
     BOND            = "Optimized Parameters"
     SEPARATOR       = "GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"
-
-
-class Atom:
-    def __init__(self, index, atomic_number, v, x, y, z) -> None:
-        self.index = int(index)
-        self.atomic_number = int(atomic_number)
-        self.v = v
-        self.x = x
-        self.y = y
-        self.z = z
-        self.color = self.get_color()
-
-
-    def get_color(self):
-        Z = int(self.atomic_number)
-        color = [125, 125, 125, 1]
-
-        if Z == 8:
-            color = [1, 0, 0, 1]
-        elif Z == 6:
-            color = [.2, .2, .2, 1]
-        elif Z == 1:
-            color = [1, 1, 1, 1]
-        elif Z == 7:
-            color = [0, 0, 1, 1]
-        elif Z == 16:
-            color = [1, 1, 0, 1]
-
-        return np.array(color)
-        
-    def get_object(self):
-        return {'index': self.index, "x": self.x, "y": self.y, "z": self.z, "atomicNumber": self.atomic_number}
-
-    @property
-    def pos(self):
-        return self.x, self.y, self.z
-
-    def __repr__(self) -> str:
-        return f'Atom({self.index}, {self.atomic_number})'
-
-class Bond:
-    def __init__(self, l:int, r:int) -> None:
-        self.l = l
-        self.r = r
-
-class NMRSignal:
-    def __init__(self, index, atom, sheilding, desheilding) -> None:
-        self.index          = index
-        self.atom           = atom
-        self.sheilding      = sheilding
-        self.desheilding    = desheilding
-
-    def __repr__(self) -> str:
-        return f"({self.index}, {self.atom}, {self.sheilding})"
+    RMS_FORCE       = "RMS     Force"
+    RMS_DISPL       = "RMS     Displacement"
+    MAX_FORCE       = "Maximum Force"
+    MAX_DISPL       = "Maximum Displacement"
+    TOT_ENERGY      = "Predicted change in Energy="
+    OPTMIZED_GEOM   = " Center     Atomic     Atomic              Coordinates (Angstroms)"
 
 
 EXPORT_FORMATS = [
@@ -90,3 +42,61 @@ PATHS = {
     'icons': 'icons/',
     'ui': 'ui/'
 }
+
+SPECTRUM_TYPES = [
+    'Transmittance',
+    'Absorbance',
+]
+
+def save_figure(self, ):
+    pyplot = importlib.import_module('matplotlib.pyplot')
+
+    fig, ax = pyplot.subplots(
+        nrows=1, figsize=(
+            self.p.figure_width,
+            self.p.figure_height,
+        )
+    )
+    fig.subplots_adjust(
+        top=self.p.padding_top,
+        bottom=self.p.padding_bottom,
+        left=self.p.padding_left,
+        right=self.p.padding_right,
+    )
+
+    if not self.ui.hide_verticals_check.isChecked():
+        ax.vlines(
+            self.spectrumGraph.freq, ymin=100, ymax=100-self.spectrumGraph.ints,
+            colors=self.p.spikes_color, label='Peaks' 
+        )
+    if self.ui.broadening_check.isChecked():
+        x, gInts = self.generate_broadening_for_export(
+            self.ui.broadening_slider.value(),
+            self.spectrumGraph.freq,
+            self.spectrumGraph.ints
+        )
+        gInts = (1-(gInts/gInts.max()))*100
+        ax.plot(
+            x, gInts, color=self.p.broaden_color, 
+            linewidth=self.p.broaden_width, 
+            linestyle=self.p.broaden_style,
+            label='Spectrum'
+        )
+
+    ax.set_ylim([-3, 106])
+    ax.set_xticks(arange(-250, 4251, 250), fontsize=14)
+    ax.set_yticks(arange(0, 101, 10), fontsize=self.style_dialog.fontsize_inp.value())
+    ax.set_xlabel(self.style_dialog.xlabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
+    ax.set_ylabel(self.style_dialog.ylabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
+    ax.set_title(self.style_dialog.title_inp.text(), fontsize=self.style_dialog.fontsize_inp.value()+2)
+    ax.spines["top"].set_visible(True)
+    ax.spines["right"].set_visible(True)
+    ax.minorticks_on()
+    ax.tick_params(which='major', length=5, direction='in', left=True,right=False,top=False,bottom=True)
+    ax.tick_params(which='minor', length=2.5, direction='in', left=True,right=False,top=False,bottom=True)
+    leg = ax.legend(loc='lower left', ncol=2, frameon=True, fancybox=False, fontsize=self.style_dialog.fontsize_inp.value())
+    ax.invert_xaxis()
+    ax.set_xlim(self.p.xlim)
+    fig.tight_layout()
+
+    return fig

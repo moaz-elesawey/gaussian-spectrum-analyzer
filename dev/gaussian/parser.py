@@ -1,8 +1,12 @@
 import re
-import numpy as np
+from numpy import array
 from pprint import pprint
+from time import time
 
-from utils import Atom, MESSAGE, NMRSignal
+from gaussian.mol.optm import OptimizationStep
+
+from .mol import Atom, NMRSignal
+from utils import MESSAGE
 
 
 class Parser:
@@ -10,19 +14,19 @@ class Parser:
         self.filename = filename
         self._RE_COMBINE_WHITESPACE = re.compile(r"\s+")
 
-
         with open(self.filename) as f:
             self.lines = f.readlines()
+        s = time()
 
-        self.freq           = np.array(self.load_frequencies())
-        self.ir_ints        = np.array(self.load_ir_intensities())
-        self.raman_ints     = np.array(self.load_raman_intensities())
-        self.depolar_p      = np.array(self.load_depolar_p())
-        self.depolar_u      = np.array(self.load_depolar_u())
-        self.frc_consts     = np.array(self.load_frc_consts())
-        self.red_masses     = np.array(self.load_red_masses())
-        self.nmr_sheilding  = np.array(self.load_nmr_spectrum())
-        self.uv_spectrum    = np.array(self.load_uv_spectrum())
+        self.freq           = array(self.load_frequencies())
+        self.ir_ints        = array(self.load_ir_intensities())
+        self.raman_ints     = array(self.load_raman_intensities())
+        self.depolar_p      = array(self.load_depolar_p())
+        self.depolar_u      = array(self.load_depolar_u())
+        self.frc_consts     = array(self.load_frc_consts())
+        self.red_masses     = array(self.load_red_masses())
+        self.nmr_sheilding  = array(self.load_nmr_spectrum())
+        self.uv_spectrum    = array(self.load_uv_spectrum())
 
         self.ir_ints        = (self.ir_ints/self.ir_ints.max())*100 if len(self.ir_ints) > 0 else self.ir_ints
         self.raman_ints     = (self.raman_ints/self.raman_ints.max())*100 if len(self.raman_ints) > 0 else self.raman_ints
@@ -34,6 +38,8 @@ class Parser:
         self.uv_spectrum    = (self.uv_spectrum/self.uv_spectrum.max())*100 if len(self.uv_spectrum) > 0 else self.uv_spectrum
 
         self.animations     = self.load_vibration_states()
+
+        print('load took', time()-s)
 
 
     def load_frequencies(self):
@@ -130,7 +136,6 @@ class Parser:
 
         return uv_spectrum
 
-
     def get_atoms_count(self):
         for l in self.lines:
             if MESSAGE.ATOM_COUNT in l:
@@ -194,7 +199,7 @@ class Parser:
                 formated_state.append(trimmed_l)
             except Exception as e:
                 pass
-        formated_state = np.array(formated_state)
+        formated_state = array(formated_state)
         
         return formated_state[:, 2:5], formated_state[:, 5:8], formated_state[:, 8:11]
 
@@ -208,6 +213,59 @@ class Parser:
                 vibration_states.append(state2)
                 vibration_states.append(state3)
         
-        vibration_states = np.array(vibration_states)
+        vibration_states = array(vibration_states)
 
         return vibration_states
+
+    def format_optimization_line(self, l):
+        trimmed_l = self._RE_COMBINE_WHITESPACE.sub(",", l.strip().lstrip()).split(',')
+        return float(trimmed_l[2])
+
+    def format_tot_energy(self, l):
+        l = l.replace(MESSAGE.TOT_ENERGY, '')
+        l = l.split('D')
+        return float(l[0])
+
+    def load_optimization_values(self):
+        rms_forces = []
+        rms_displ = []
+        max_forces = []
+        max_displ = []
+        tot_energy = []
+
+        for l in self.lines:
+            if MESSAGE.RMS_FORCE in l:
+                rms_forces.append(self.format_optimization_line(l))
+            elif MESSAGE.RMS_DISPL in l:
+                rms_displ.append(self.format_optimization_line(l))
+            elif MESSAGE.MAX_FORCE in l:
+                max_forces.append(self.format_optimization_line(l))
+            elif MESSAGE.MAX_DISPL in l:
+                max_displ.append(self.format_optimization_line(l))
+            elif MESSAGE.TOT_ENERGY in l:
+                tot_energy.append(self.format_tot_energy(l))
+
+        return tot_energy, rms_forces, rms_displ, max_forces, max_displ
+
+    def format_optimzed_table(self, table):
+        optimized_coord = []
+
+        for l in table:
+            l = self._RE_COMBINE_WHITESPACE.sub(",", l.strip().lstrip()).split(',')
+            optm_step = OptimizationStep(int(l[0]) , float(l[3]) , float(l[4]) , float(l[5]), int(l[1]))
+            optimized_coord.append(optm_step)
+
+        return optimized_coord
+
+    def load_optimized_geometry(self):
+        atoms_count = self.get_atoms_count()
+        geom = []
+
+        for idx, l in enumerate(self.lines):
+            if MESSAGE.OPTMIZED_GEOM in l:
+                geom.append(self.format_optimzed_table(self.lines[idx+3:idx+3+atoms_count]))
+
+        del geom[0]
+        
+        return geom
+

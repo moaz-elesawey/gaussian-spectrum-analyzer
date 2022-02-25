@@ -1,22 +1,39 @@
-
+from argparse import Action
 import os
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-
+from time import time
+from PyQt5.QtWidgets import (
+    QDialog, QFileDialog, QTableWidgetItem, 
+    QApplication, QMessageBox, QComboBox, 
+    QHBoxLayout, QFrame, QMainWindow, QToolBar, 
+    QAction
+)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QPixmap, QFont
 
 from ui import Ui_SpectrumAnalyzer, Ui_StyleDialog
+from gaussian import *
+from gaussian.togglers import (
+    toggle_broadening, toggle_grid,
+    toggle_hide_verticals,
+    toggle_marks, toggle_peaks,
+    toggle_scale_curve,
+    toggle_scale_x, toggle_scale_y
+)
 
-from matplotlib import pyplot
-from gaussian import SpectrumGraph, Toolbar, Properties, Parser
-from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR
+from .triggers import (
+    trigger_apply_changes, trigger_broadening_slider,
+    trigger_broadening_text, trigger_change_page,
+    trigger_change_style, trigger_linestyle_change,
+    trigger_pick_color, trigger_spectrum_select,
+    trigger_style_button, trigger_tab_change,
+    trigger_table_selection, trigger_tight_layout
+)
+
+from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR, SPECTRUM_TYPES, save_figure
 
 import pyqtgraph.opengl as gl
 import numpy as np
-
-# import pyqtgraph as pg
-# import json
 
 
 class StyleDialog(QDialog, Ui_StyleDialog):
@@ -27,20 +44,21 @@ class StyleDialog(QDialog, Ui_StyleDialog):
         self.setWindowTitle('Change Graph Style')
 
 
-class SpectrumAnalyzer(QDialog):
+class SpectrumAnalyzer(QMainWindow):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
 
         self.ui = Ui_SpectrumAnalyzer()
         self.ui.setupUi(self)
-        self.setWindowFlags(
-            Qt.WindowCloseButtonHint | 
-            Qt.WindowMaximizeButtonHint | 
-            Qt.WindowMinimizeButtonHint
-        )
+        # self.setWindowFlags(
+        #     Qt.WindowCloseButtonHint | 
+        #     Qt.WindowMaximizeButtonHint | 
+        #     Qt.WindowMinimizeButtonHint
+        # )
         self.setWindowIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'] ,"spectrum-icon.png")))
         self.setWindowTitle("GSA Gaussian Spectrum Analyzer")
         self.resize(1280, 750)
+        self.setMinimumWidth(1280)
 
         self.item_selected = False
         self.a_file_loaded = False
@@ -51,6 +69,9 @@ class SpectrumAnalyzer(QDialog):
         self.original_compound = []
         self.grid_toggled = False
 
+
+        self.createActions()
+
         # init Ui Components
         self.uiComponents()
 
@@ -60,21 +81,19 @@ class SpectrumAnalyzer(QDialog):
         # init Actions
         self.initActions()
 
-        self.show()
-
     def uiComponents(self):
+        
         self.spectrumGraph = SpectrumGraph()
+        self.graphToolbar = Toolbar(self.spectrumGraph, self)
 
         self.viewer = gl.GLViewWidget()
         self.viewer_grid = gl.GLGridItem()
-        # self.animationTimer = QTimer(self)
-        
-        self.graphToolbar = Toolbar(self.spectrumGraph, self.ui.spectrumFrame)
+
         self.style_dialog = StyleDialog()
         self.style_dialog.setModal(True)
-        self.style_dialog.ok_btn.clicked.connect(lambda: self.trigger_style_button('OK'))
-        self.style_dialog.apply_btn.clicked.connect(lambda: self.trigger_style_button('Apply'))
-        self.style_dialog.cancel_btn.clicked.connect(lambda: self.trigger_style_button('Cancel'))
+        self.style_dialog.ok_btn.clicked.connect(lambda: trigger_style_button(self, 'OK'))
+        self.style_dialog.apply_btn.clicked.connect(lambda: trigger_style_button(self, 'Apply'))
+        self.style_dialog.cancel_btn.clicked.connect(lambda: trigger_style_button(self, 'Cancel'))
 
 
     def initUi(self):
@@ -112,6 +131,7 @@ class SpectrumAnalyzer(QDialog):
         self.ui.export_formats_select.addItems(EXPORT_FORMATS)
         self.style_dialog.line_shape_select.addItems(LINESTYLES)
         self.style_dialog.spike_shape_select.addItems(LINESTYLES)
+        self.ui.spectrumType.addItems(SPECTRUM_TYPES)
 
         self.viewer.setWindowTitle('STL Viewer')
         self.viewer.setCameraPosition(distance=25)
@@ -121,194 +141,115 @@ class SpectrumAnalyzer(QDialog):
         self.ui.start_animation_btn.setText('')
         self.ui.start_animation_btn.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'] ,"grid_icon.png")))
 
+    def createActions(self):
+        menuBar = self.menuBar()
+        self.toolBar = QToolBar()
+
+        self.fileMenu = menuBar.addMenu('&File')
+        self.editMenu = menuBar.addMenu('&Edit')
+        self.viewMenu = menuBar.addMenu('&View')
+        self.aboutMenu = menuBar.addMenu('&About')
+
+        self.openAction = QAction("&Open Gaussian File")
+        self.openAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'open-file.png')))
+
+        self.saveAction = QAction("&Save Graph")
+        self.saveAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'save-image.png')))
+        self.fileMenu.addSeparator()
+        self.quitAction = QAction("&Quit")
+        self.quitAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'quit.png')))
+
+        self.changeStyleAction = QAction('&Change Style')
+
+        self.toggleBroaden = QAction("Show/Hide Broaden")
+        self.toggleBroaden.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'broaden-icon.png')))
+        self.toggleSpikes = QAction("Show/Hide Spike")
+        self.toggleSpikes.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'spikes-icon.png')))
+        self.tightFigureLayoutAction = QAction('&Tight Figure Layout')
+        self.tightFigureLayoutAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'aspect-ratio.png')))
+        self.zoomOutAction = QAction("&Zoom Out")
+        self.zoomOutAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'zoom-out.png')))
+        self.toggleGrid = QAction('&Show/Hid Grid')
+        self.toggleGrid.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'grid_icon.png')))
+        
+        self.helpAction = QAction("&Help")
+
+        self.editMenu.addAction(self.changeStyleAction)
+
+        self.fileMenu.addAction(self.openAction)
+        self.fileMenu.addAction(self.saveAction)
+        self.fileMenu.addAction(self.quitAction)
+
+        self.aboutMenu.addAction(self.helpAction)
+
+        self.viewMenu.addAction(self.toggleBroaden)
+        self.viewMenu.addAction(self.toggleSpikes)
+        self.viewMenu.addAction(self.tightFigureLayoutAction)
+        self.viewMenu.addAction(self.zoomOutAction)
+        self.viewMenu.addAction(self.toggleGrid)
+
+        self.toolBar.addAction(self.openAction)
+        self.toolBar.addAction(self.saveAction)
+        self.toolBar.addAction(self.quitAction)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.toggleBroaden)
+        self.toolBar.addAction(self.toggleSpikes)
+        self.toolBar.addAction(self.tightFigureLayoutAction)
+        self.toolBar.addAction(self.zoomOutAction)
+        self.toolBar.addAction(self.toggleGrid)
+
+        self.addToolBar(self.toolBar)
+
+
     def initActions(self):
-        self.ui.broadening_check.toggled.connect(self.toggle_broadening)
-        self.ui.scale_curve_check.toggled.connect(self.toggle_scale_curve)
-        self.ui.scale_x_check.toggled.connect(self.toggle_scale_x)
-        self.ui.scale_y_check.toggled.connect(self.toggle_scale_y)
-        self.ui.show_peaks_check.toggled.connect(self.toggle_peaks)
-        self.ui.show_marks_check.toggled.connect(self.toggle_marks)
-        self.ui.hide_verticals_check.toggled.connect(self.toggle_hide_verticals)
+        self.ui.broadening_check.toggled.connect(lambda e: toggle_broadening(self, e))
+        self.ui.scale_curve_check.toggled.connect(lambda e: toggle_scale_curve(self, e))
+        self.ui.scale_x_check.toggled.connect(lambda e: toggle_scale_x(self, e))
+        self.ui.scale_y_check.toggled.connect(lambda e: toggle_scale_y(self, e))
+        self.ui.show_peaks_check.toggled.connect(lambda e: toggle_peaks(self, e))
+        self.ui.show_marks_check.toggled.connect(lambda e: toggle_marks(self, e))
+        self.ui.hide_verticals_check.toggled.connect(lambda e: toggle_hide_verticals(self, e))
 
         # connect actions to buttons
         self.ui.zoom_out_btn.clicked.connect(self.graphToolbar.home)
-        self.ui.tight_graph_btn.clicked.connect(self.trigger_tight_layout)
+        self.ui.tight_graph_btn.clicked.connect(lambda e: trigger_tight_layout(self, e))
         self.ui.broadening_btn.clicked.connect(
-            lambda _: self.spectrumGraph.applyBroadening(self.p)
-        )
-        self.ui.broadening_slider.valueChanged.connect(self.trigger_broadening_slider)
-        self.ui.open_file_btn.clicked.connect(self.trigger_open_file)
-        self.ui.spectrum_table.itemSelectionChanged.connect(self.trigger_table_selection)
-        self.ui.spectrums_select.currentIndexChanged.connect(self.trigger_spectrum_select)
+            lambda _: self.spectrumGraph.applyBroadening(self.p))
+        self.ui.broadening_slider.valueChanged.connect(lambda e: trigger_broadening_slider(self, e))
+        # self.ui.open_file_btn.clicked.connect(self.trigger_open_file)
+        self.ui.spectrum_table.itemSelectionChanged.connect(lambda e: trigger_table_selection(self, e))
+        self.ui.spectrums_select.currentIndexChanged.connect(lambda e: trigger_spectrum_select(self, e))
         self.ui.export_graph_btn.clicked.connect(self.trigger_save_figure)
-        self.ui.style_btn.clicked.connect(self.trigger_change_style)
-        self.ui.broadening_inp.textChanged.connect(self.trigger_broadening_text)
+        self.ui.style_btn.clicked.connect(lambda e: trigger_change_style(self))
+        self.ui.broadening_inp.textChanged.connect(lambda e: trigger_broadening_text(self, e))
         
-        self.style_dialog.line_color_pick.clicked.connect(lambda : self.trigger_pick_color('line'))
-        self.style_dialog.spike_color_pick.clicked.connect(lambda : self.trigger_pick_color('spike'))
-        self.style_dialog.marker_color_pick.clicked.connect(lambda : self.trigger_pick_color('marker'))
+        self.style_dialog.line_color_pick.clicked.connect(lambda : trigger_pick_color(self, 'line'))
+        self.style_dialog.spike_color_pick.clicked.connect(lambda : trigger_pick_color(self, 'spike'))
+        self.style_dialog.marker_color_pick.clicked.connect(lambda : trigger_pick_color(self, 'marker'))
 
         self.style_dialog.line_shape_select.currentIndexChanged.connect(
-            lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='line')
+            lambda e: trigger_linestyle_change(self, LINESTYLES[e], which='line')
         )
         self.style_dialog.spike_shape_select.currentIndexChanged.connect(
-            lambda e: self.trigger_linestyle_change(LINESTYLES[e], which='spike')
+            lambda e: trigger_linestyle_change(self, LINESTYLES[e], which='spike')
         )
-        # self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(1))
-        # self.ui.spectrum_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
 
         self.ui.close_btn.clicked.connect(self.close)
 
-        # self.animationTimer.timeout.connect(self.animate)
-        self.ui.start_animation_btn.clicked.connect(self.toggle_grid)
+        self.ui.start_animation_btn.clicked.connect(lambda e: toggle_grid(self))
+        self.ui.spectrumTabWidget.currentChanged.connect(lambda e: trigger_tab_change(self, e))
 
-    # togglers
-    def toggle_broadening(self, state):
-        self.ui.broadening_btn.setDisabled(not state)
-        self.ui.broadening_inp.setDisabled(not state)
-        self.ui.broadening_slider.setDisabled(not state)
-        self.ui.broadening_select.setDisabled(not state)
-        self.ui.label.setDisabled(not state)
+        # actions
+        self.openAction.triggered.connect(self.trigger_open_file)
+        self.zoomOutAction.triggered.connect(self.graphToolbar.home)
+        self.tightFigureLayoutAction.triggered.connect(lambda e: trigger_tight_layout(self, e))
+        self.toggleGrid.triggered.connect(lambda e: toggle_grid(self))
+        self.toggleBroaden.triggered.connect(lambda e: self.ui.broadening_check.setChecked(not self.ui.broadening_check.isChecked()))
+        self.toggleSpikes.triggered.connect(lambda e: self.ui.hide_verticals_check.setChecked(not self.ui.hide_verticals_check.isChecked()))
+        self.saveAction.triggered.connect(self.trigger_save_figure)
+        self.quitAction.triggered.connect(self.close)
 
-        if not state:
-            self.spectrumGraph.removeBroadening(self.p)
-            self.spectrumGraph.draw()
-            return
-        else:
-            self.spectrumGraph.applyBroadening(self.p)
-            self.spectrumGraph.draw()
-            return
-
-        self.ui.broadening_inp.setText(str(self.ui.broadening_slider.value()))
-
-    def toggle_scale_curve(self, state):
-        self.ui.scale_curve_inp.setDisabled(not state)
-        self.ui.scale_curve_btn.setDisabled(not state)
-
-    def toggle_peaks(self, state):
-        self.ui.peaks_select.setDisabled(not state)
-
-    def toggle_marks(self, state):
-        self.ui.marks_select.setDisabled(not state)
-
-    def toggle_scale_x(self, state):
-        self.ui.scale_x_inp.setDisabled(not state)
-        self.ui.scale_x_btn.setDisabled(not state)
-
-    def toggle_scale_y(self, state):
-        self.ui.scale_y_inp.setDisabled(not state)
-        self.ui.scale_y_btn.setDisabled(not state)
-
-    def toggle_hide_verticals(self, state):
-        self.spectrumGraph.togglePeaks(state, self.p.spikes_color)
-
-    def toggle_grid(self):
-        if self.grid_toggled:
-            self.viewer.removeItem(self.viewer_grid)
-            self.grid_toggled = False
-        else:
-            self.viewer.addItem(self.viewer_grid)
-            self.grid_toggled = True
-
-    def trigger_tight_layout(self):
-        self.spectrumGraph.fig.tight_layout()
-        self.spectrumGraph.draw()
-
-    def trigger_broadening_slider(self, broad):
-        self.p.broaden_sigma = broad
-        self.spectrumGraph.applyBroadening(self.p)
-
-    def trigger_broadening_text(self, sigma):
-        try:
-            sigma = float(sigma)
-            self.p.broaden_sigma = sigma
-            self.spectrumGraph.applyBroadening(self.p)
-            # self.ui.broadening_slider.setValue(sigma)
-        except Exception as e: 
-            print(str(e))
-
-    def trigger_spectrum_select(self, index):
-        
-        self.spectrumGraph.ax.cla()
-        self.spectrumGraph.initStyle()
-        self.ui.hide_verticals_check.setChecked(False)
-
-        if index == 0:
-            self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints)
-            self.populateTable(self.parser.freq, self.parser.ir_ints)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'IR Intensities'])
-            self.spectrumGraph.fig.suptitle('IR Spectrum of #', fontsize=14)
-            # self.p.ylim = (self.parser.ir_ints.min(), self.parser.ir_ints.max())
-        
-        elif index == 1:
-            self.spectrumGraph.PlotData(self.parser.freq, self.parser.raman_ints)
-            self.populateTable(self.parser.freq, self.parser.raman_ints)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Raman Intensities'])
-            self.spectrumGraph.fig.suptitle('Raman Spectrum of #', fontsize=14)
-            # self.p.ylim = (self.parser.raman_ints.min(), self.parser.raman_ints.max())
-
-        elif index == 2:
-            self.spectrumGraph.PlotData(self.parser.freq, self.parser.frc_consts)
-            self.populateTable(self.parser.freq, self.parser.frc_consts)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'FRC Consts'])
-            self.spectrumGraph.fig.suptitle('FRC consts of #', fontsize=14)
-            # self.p.ylim = (self.parser.frc_consts.min(), self.parser.frc_consts.max())
-
-        elif index == 3:
-            self.spectrumGraph.PlotData(self.parser.freq, self.parser.red_masses)
-            self.populateTable(self.parser.freq, self.parser.red_masses)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Red Masses'])
-            self.spectrumGraph.fig.suptitle('Red Masses of #', fontsize=14)
-            # self.p.ylim = (self.parser.red_masses.min(), self.parser.red_masses.max())
-        
-        elif index == 4:
-            self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_p)
-            self.populateTable(self.parser.freq, self.parser.depolar_p)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Depolar (P)'])
-            self.spectrumGraph.fig.suptitle('Depolar (P) of #', fontsize=14)
-            # self.p.ylim = (self.parser.depolar_p.min(), self.parser.depolar_p.max())
-        
-        elif index == 5:
-            self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_u)
-            self.populateTable(self.parser.freq, self.parser.depolar_u)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Depolar (U)'])
-            self.spectrumGraph.fig.suptitle('Depolar (U) of #', fontsize=14)
-            # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
-
-        elif index == 6:
-            deg = np.ones(self.parser.nmr_sheilding.shape[0])
-            self.spectrumGraph.PlotData(self.parser.nmr_sheilding, deg)
-            self.populateTable(self.parser.nmr_sheilding, deg)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['Sheilding', 'Degeneracy'])
-            self.spectrumGraph.fig.suptitle('NMR Spectrum of #', fontsize=14)
-            # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
-        
-        elif index == 7:
-            deg = np.ones(self.parser.uv_spectrum.shape[0])
-            self.spectrumGraph.PlotData(self.parser.uv_spectrum, deg)
-            self.populateTable(self.parser.uv_spectrum, deg)
-            self.ui.spectrum_table.setHorizontalHeaderLabels(['UV Vis Wavelength', 'Degeneracy'])
-            self.spectrumGraph.fig.suptitle('UV Vis Spectrum of #', fontsize=14)
-            # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
-
-        if self.ui.broadening_check.isChecked():
-            self.spectrumGraph.applyBroadening(self.p)
-
-        self.spectrumGraph.draw()
-
-    def trigger_table_selection(self):
-        idx = self.ui.spectrum_table.selectedIndexes()[-1].row()
-        x, y = self.spectrumGraph.freq[idx], self.spectrumGraph.ints[idx]
-        self.ui.intensity_label.setText(str((round(x, 3), round(y, 3))))
-
-        # selected_animation = self.parser.animations[idx]
-        # print(selected_animation)
-        # for idx, entry in enumerate(selected_animation):
-        #     # op = self.original_compound[idx]
-        #     # print(dir(op))
-        #     self.compound[idx].translate(*self.original_compound[idx].pos)
-        #     self.compound[idx].translate(*entry)
-
+        self.ui.optimization_list.currentRowChanged.connect(self.trigger_optimization_select)
     
     def trigger_open_file(self):
         filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
@@ -333,157 +274,9 @@ class SpectrumAnalyzer(QDialog):
         filename, _ = QFileDialog.getSaveFileName()
         if not filename: return
         if self.ui.hide_verticals_check.isChecked() and not self.ui.broadening_check.isChecked(): return
-        
-        fig, ax = pyplot.subplots(
-            nrows=1, figsize=(
-                self.p.figure_width,
-                self.p.figure_height,
-            )
-        )
-        fig.subplots_adjust(
-            top=self.p.padding_top,
-            bottom=self.p.padding_bottom,
-            left=self.p.padding_left,
-            right=self.p.padding_right,
-        )
-
-        if not self.ui.hide_verticals_check.isChecked():
-            ax.vlines(
-                self.spectrumGraph.freq, ymin=100, ymax=100-self.spectrumGraph.ints,
-                colors=self.p.spikes_color, label='Peaks' 
-            )
-        if self.ui.broadening_check.isChecked():
-            x, gInts = self.generate_broadening_for_export(
-                self.ui.broadening_slider.value(),
-                self.spectrumGraph.freq,
-                self.spectrumGraph.ints
-            )
-            gInts = (1-(gInts/gInts.max()))*100
-            ax.plot(
-                x, gInts, color=self.p.broaden_color, 
-                linewidth=self.p.broaden_width, 
-                linestyle=self.p.broaden_style,
-                label='Spectrum'
-            )
-
-        ax.set_ylim([-3, 106])
-        ax.set_xticks(np.arange(-250, 4251, 250), fontsize=14)
-        ax.set_yticks(np.arange(0, 101, 10), fontsize=self.style_dialog.fontsize_inp.value())
-        ax.set_xlabel(self.style_dialog.xlabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
-        ax.set_ylabel(self.style_dialog.ylabel_inp.text(), fontsize=self.style_dialog.fontsize_inp.value())
-        ax.set_title(self.style_dialog.title_inp.text(), fontsize=self.style_dialog.fontsize_inp.value()+2)
-        ax.spines["top"].set_visible(True)
-        ax.spines["right"].set_visible(True)
-        ax.minorticks_on()
-        ax.tick_params(which='major', length=5, direction='in', left=True,right=False,top=False,bottom=True)
-        ax.tick_params(which='minor', length=2.5, direction='in', left=True,right=False,top=False,bottom=True)
-        leg = ax.legend(loc='lower left', ncol=2, frameon=True, fancybox=False, fontsize=self.style_dialog.fontsize_inp.value())
-        ax.invert_xaxis()
-        ax.set_xlim(self.p.xlim)
-        fig.tight_layout()
+        fig = save_figure(self)
         fig.savefig(filename.split('.')[0]+'.{}'.format(self.ui.export_formats_select.currentText().lower()))
 
-    def trigger_change_style(self):
-        self.style_dialog.exec()
-
-    def trigger_style_button(self, e):
-        if e == 'Cancel':
-            self.style_dialog.close()
-        elif e == 'OK':
-            self.trigger_apply_changes()
-            self.style_dialog.close()
-        elif e == 'Apply':
-            self.trigger_apply_changes()
-
-    # trigger style changes
-    def trigger_apply_changes(self):
-        sd = self.style_dialog
-
-        self.p.figure_width = sd.figure_width.value()
-        self.p.figure_height = sd.figure_height.value()
-        
-        self.p.padding_top    = sd.padding_top.value()
-        self.p.padding_bottom = sd.padding_bottom.value()
-        self.p.padding_left   = sd.padding_left.value()
-        self.p.padding_right  = sd.padding_right.value()
-
-        self.p.broaden_width = sd.linewidth_inp.value()
-        self.p.broaden_style = sd.line_shape_select.currentText()
-        self.p.broaden_sigma = self.ui.broadening_slider.value()
-
-        self.p.spikes_width = sd.spike_width.value()
-        self.p.spikes_style = sd.spike_shape_select.currentText()
-
-        self.p.title = sd.title_inp.text()
-        self.p.xlabel = sd.xlabel_inp.text()
-        self.p.ylabel = sd.ylabel_inp.text()
-
-        self.p.xlim = sd.xlim_max.value(), sd.xlim_min.value()
-        self.p.ylim = sd.ylim_min.value(), sd.ylim_max.value()
-
-        self.spectrumGraph.fig.subplots_adjust(
-            top=self.p.padding_top,
-            bottom=self.p.padding_bottom,
-            left=self.p.padding_left,
-            right=self.p.padding_right,
-        )
-
-        self.spectrumGraph.fig.suptitle(self.p.title)
-        self.spectrumGraph.ax.set_xlabel(self.p.xlabel)
-        self.spectrumGraph.ax.set_ylabel(self.p.ylabel)
-        
-        self.spectrumGraph.ax.set_xlim(self.p.xlim)
-        self.spectrumGraph.ax.set_ylim(self.p.ylim)
-
-        if not self.ui.hide_verticals_check.isChecked():
-            self.spectrumGraph.peaks_plot.set_lw(self.p.spikes_width)
-            self.spectrumGraph.peaks_plot.set_ls(self.p.spikes_style)
-            self.spectrumGraph.peaks_plot.set_color(self.p.spikes_color)
-
-        if self.spectrumGraph._broaden:
-            self.spectrumGraph._broaden[0].set_lw(self.p.broaden_width)
-            self.spectrumGraph._broaden[0].set_ls(self.p.broaden_style)
-            self.spectrumGraph._broaden[0].set_color(self.p.broaden_color)
-        self.spectrumGraph.fig.tight_layout()
-        self.spectrumGraph.draw()
-
-    def trigger_pick_color(self, which):
-        color = QColorDialog(self).getColor()
-        r, g, b, a = color.getRgb()
-        back_color = "background-color: rgb({}, {}, {})".format(r, g, b)
-        hex_color = self.rgb2hex(r, g, b)
-        
-        if which == 'line':
-            self.p.broaden_color = hex_color
-            self.style_dialog.line_color_pick.setStyleSheet(back_color)
-
-        elif which == 'spike':
-            self.p.spikes_color = hex_color
-            self.style_dialog.spike_color_pick.setStyleSheet(back_color)
-
-        elif which == 'marker':
-            self.p.marker_color = hex_color
-            self.style_dialog.marker_color_pick.setStyleSheet(back_color)
-        else:
-            return
-
-    def trigger_linestyle_change(self, ls, which):
-        if which == 'line':
-            if self.spectrumGraph._broaden:
-                self.spectrumGraph._broaden[0].set_linestyle(ls)
-        elif which == 'spike':
-            self.spectrumGraph.peaks_plot.set_linestyles(ls)
-
-    def trigger_change_page(self):
-        current_index = self.ui.spectrumStackedWidget.currentIndex()
-
-        if current_index == 0:
-            self.ui.render_btn.setText('3D Render')
-            self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(1))
-        elif current_index == 1:
-            self.ui.render_btn.setText('Spectrum Graph')
-            self.ui.render_btn.clicked.connect(lambda: self.ui.spectrumStackedWidget.setCurrentIndex(0))
-        
     def setState(self, state):
         self.ui.broadening_check.setDisabled(state)
         self.ui.spectrum_table.setDisabled(state)
@@ -504,20 +297,29 @@ class SpectrumAnalyzer(QDialog):
         self.ui.start_animation_btn.setDisabled(state)
         self.spectrumGraph.setDisabled(state)
         self.graphToolbar.setDisabled(state)
-
-
-    def load_ir_data(self, filename=None):
-        self.parser: Parser = Parser(filename)
+        self.saveAction.setDisabled(state)
+        self.toggleBroaden.setDisabled(state)
+        self.toggleSpikes.setDisabled(state)
+        self.zoomOutAction.setDisabled(state)
+        self.tightFigureLayoutAction.setDisabled(state)
+        self.toggleGrid.setDisabled(state)
+        self.ui.optimization_list.setDisabled(state)
+        self.ui.spectrumType.setDisabled(state)
+        self.changeStyleAction.setDisabled(state)
 
     def applyLoadedData(self, filename):
-        self.load_ir_data(filename)
+        self.parser: Parser = Parser(filename)
         self.load_and_render()
         
         # apply to table
         self.populateTable(self.parser.freq, self.parser.ir_ints)
 
+        self.populateOptimization()
+
+        s = time()
         # apply to graph
         self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints)
+        print('took: ', time()-s)
         
     def populateTable(self, freq:np.ndarray, ints:np.ndarray):
         self.ui.spectrum_table.setRowCount(len(freq))
@@ -527,10 +329,34 @@ class SpectrumAnalyzer(QDialog):
         self.ui.spectrum_table.setHorizontalHeaderLabels(header)
 
         for idx, (f, i) in enumerate(zip(freq, ints)):
-            # self.ui.spectrum_table.setItem(idx, 0, QTableWidgetItem(idx+1))
             self.ui.spectrum_table.setItem(idx, 0, QTableWidgetItem("{:10.4f}".format(f)))
             self.ui.spectrum_table.setItem(idx, 1, QTableWidgetItem("{:10.4f}".format(i)))
 
+    def populateOptimization(self):
+        self.ui.optimization_list.clear()
+
+        self.ui.optimization_list.addItems(
+            [f" {i+1}\tE: {o}" for i, o in enumerate(self.parser.load_optimization_values()[0])]
+        )
+
+    def trigger_optimization_select(self, index):
+        selected_optm = self.parser.load_optimized_geometry()[index]
+
+        self.viewer.clear()
+
+        for idx, b in enumerate(self.bonds):
+            l = selected_optm[b[0]-1]
+            r = selected_optm[b[1]-1]
+            plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=False, color="#dcdfe0")
+            self.viewer.addItem(plt)
+            self.compound_bonds.append(plt)
+
+        for optm_step in selected_optm:
+            md = gl.MeshData.sphere(rows=40, cols=40)
+            m3 = gl.GLMeshItem(meshdata=md, smooth=False, shader='shaded', color=optm_step.color)
+            m3.translate(optm_step.x, optm_step.y, optm_step.z)
+            m3.scale(.4, .4, .4)
+            self.viewer.addItem(m3)
 
     def load_and_render(self):
 
@@ -545,11 +371,9 @@ class SpectrumAnalyzer(QDialog):
         geom_tables = np.array(self.parser.get_position_table())
 
         struct1 = geom_tables[0]
-        bonds = self.parser.load_geometry_table()
-        # json_objects = {}
-        # atoms_list = [atm.get_object() for atm in struct1]
+        self.bonds = self.parser.load_geometry_table()
         
-        for idx, b in enumerate(bonds):
+        for idx, b in enumerate(self.bonds):
             l = struct1[b[0]-1]
             r = struct1[b[1]-1]
             plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=False, color="#dcdfe0")
@@ -559,15 +383,12 @@ class SpectrumAnalyzer(QDialog):
         for atom in struct1:
             md = gl.MeshData.sphere(rows=40, cols=40)
             m3 = gl.GLMeshItem(meshdata=md, smooth=False, shader='shaded', color=atom.color)
-            m3.translate(atom.x, atom.y, atom.z, local=True)
+            m3.translate(atom.x, atom.y, atom.z)
             m3.scale(.4, .4, .4)
             self.viewer.addItem(m3)
             self.compound.append(m3)
             self.original_compound.append(atom)
 
-            # txtitem2 = gl.GLTextItem()
-            # txtitem2.setData(pos=(atom.x, atom.y, atom.z), color=(255, 0, 0, 255), text=str(int(atom.index)))
-            # self.viewer.addItem(txtitem2)
     
     def animate(self):
         for idx, atom in enumerate(self.compound):
