@@ -37,11 +37,11 @@ class SplashScreen(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.trigger_progress)
-        self.timer.start(10)
+        self.timer.start(30)
 
         self.timer.singleShot(0, lambda: self.ui.loader.setText('<strong>WELCOME</strong> to <strong>GSA</strong>'))
-        self.timer.singleShot(500, lambda: self.ui.loader.setText('<strong>LOADING</strong> PACKAGES'))
-        self.timer.singleShot(750, lambda: self.ui.loader.setText('<strong>LOADING</strong> USER INTERFACE'))
+        self.timer.singleShot(1500, lambda: self.ui.loader.setText('<strong>LOADING</strong> PACKAGES'))
+        self.timer.singleShot(2000, lambda: self.ui.loader.setText('<strong>LOADING</strong> USER INTERFACE'))
 
         self.show()
 
