@@ -671,7 +671,7 @@ class Ui_SpectrumAnalyzer(object):
         self.spectrums_select.setItemText(4, _translate("SpectrumAnalyzer", "Depolar (P)"))
         self.spectrums_select.setItemText(5, _translate("SpectrumAnalyzer", "Depolar (U)"))
         self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.spectrumFrame), _translate("SpectrumAnalyzer", "Spectrum Graph"))
-        self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.render_frame), _translate("SpectrumAnalyzer", "3D Model"))
+        self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.render_frame), _translate("SpectrumAnalyzer", "3D Optimization"))
         self.style_btn.setText(_translate("SpectrumAnalyzer", "Style"))
         self.export_graph_btn.setText(_translate("SpectrumAnalyzer", "Export graph"))
         self.show_peaks_check.setText(_translate("SpectrumAnalyzer", "Show peaks"))

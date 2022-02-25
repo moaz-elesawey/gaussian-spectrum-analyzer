@@ -250,6 +250,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.quitAction.triggered.connect(self.close)
 
         self.ui.optimization_list.currentRowChanged.connect(self.trigger_optimization_select)
+        self.ui.spectrumType.currentIndexChanged.connect(self.trigger_change_spectrum_type)
     
     def trigger_open_file(self):
         filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
@@ -318,7 +319,7 @@ class SpectrumAnalyzer(QMainWindow):
 
         s = time()
         # apply to graph
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
         print('took: ', time()-s)
         
     def populateTable(self, freq:np.ndarray, ints:np.ndarray):
@@ -336,7 +337,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.ui.optimization_list.clear()
 
         self.ui.optimization_list.addItems(
-            [f" {i+1}\tE: {o}" for i, o in enumerate(self.parser.load_optimization_values()[0])]
+            [f" {i+1}\tRMS Force: {o}" for i, o in enumerate(self.parser.load_optimization_values()[1])]
         )
 
     def trigger_optimization_select(self, index):
@@ -358,6 +359,28 @@ class SpectrumAnalyzer(QMainWindow):
             m3.scale(.4, .4, .4)
             self.viewer.addItem(m3)
 
+
+    def trigger_change_spectrum_type(self, index):
+        self.p.trans = index == 0
+
+        self.spectrumGraph.ax.cla()
+
+        if not self.ui.hide_verticals_check.isChecked():
+            self.spectrumGraph.PlotData(self.spectrumGraph.freq, self.spectrumGraph.ints, self.p)
+
+        if self.ui.broadening_check.isChecked():
+            self.spectrumGraph.applyBroadening(self.p)
+
+        self.spectrumGraph.ax.set_xlim(reversed(self.p.xlim))
+        self.spectrumGraph.ax.set_xticks(np.arange(-250, 4251, 250))
+        self.spectrumGraph.ax.set_ylim([-3, 105])
+        self.spectrumGraph.ax.set_title(self.p.title)
+        self.spectrumGraph.ax.set_xlabel(self.p.xlabel)
+        self.spectrumGraph.ax.set_ylabel(self.p.ylabel)
+        # self.spectrumGraph.ax.invert_xaxis()
+
+        self.spectrumGraph.draw()
+
     def load_and_render(self):
 
         self.viewer.clear()
@@ -366,7 +389,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.compound_bonds = []
 
         self.viewer.setBackgroundColor("#111111")
-        self.viewer.setCameraPosition(distance=20)
+        self.viewer.setCameraPosition(distance=25)
 
         geom_tables = np.array(self.parser.get_position_table())
 

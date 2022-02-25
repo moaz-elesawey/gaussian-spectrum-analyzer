@@ -37,6 +37,8 @@ class Properties:
         self.padding_left    = 0.13
         self.padding_right   = 0.98
 
+        self.trans           = 1
+
 
 class Toolbar(NavigationToolbar):
     def __init__(self, canvas, parent, coordinates=True):
@@ -57,13 +59,17 @@ class SpectrumGraph(FigureCanvasQTAgg):
 
         self.initStyle()
         
-    def PlotData(self, freq:np.ndarray, ints:np.ndarray):
+    def PlotData(self, freq:np.ndarray, ints:np.ndarray, p):
         self.freq = freq
         self.ints = ints
 
         if len(self.freq) != len(self.ints): return
-        self.peaks_plot = self.ax.vlines(self.freq, ymin=100, ymax=100-self.ints, colors='#292929', label='Peaks')
-        
+
+        if p.trans:
+            self.peaks_plot = self.ax.vlines(self.freq, ymin=100, ymax=100-self.ints, colors='#292929', label='Peaks')
+        else:
+            self.peaks_plot = self.ax.vlines(self.freq, ymin=0, ymax=self.ints, colors='#292929', label='Peaks')
+
         # self.ax.set_ylim([min(self.ints), max(self.ints)])
         if not len(self.freq) == 0:
             self.ax.set_xlim(max(self.freq), min(self.freq))
@@ -82,7 +88,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.ax.tick_params(which='minor', length=3, direction='out', left=True,right=False,top=False,bottom=True)
         self.ax.set_xlabel('Wavenumber $(cm^{-1})$', fontsize=10)
         self.ax.set_ylabel('Intensity ($\epsilon$)', fontsize=10)
-        self.fig.suptitle('IR Spectrum of #', fontsize=14)
+        self.ax.set_title('IR Spectrum of #', fontsize=14)
 
         self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)
         self.ax.invert_xaxis()
@@ -117,7 +123,11 @@ class SpectrumGraph(FigureCanvasQTAgg):
             gInts.append(gI)
         
         gInts = np.array(gInts)
-        gInts = (1-(gInts/gInts.max()))*100
+        if p.trans:
+            gInts = (1-(gInts/gInts.max()))*100
+        else:
+            gInts = ((gInts/gInts.max()))*100
+
         self._broaden = self.ax.plot(x, gInts, color=p.broaden_color, linestyle=p.broaden_style, 
                 linewidth=p.broaden_width, label='Spectrum')
         

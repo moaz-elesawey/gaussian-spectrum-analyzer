@@ -25,46 +25,50 @@ def trigger_spectrum_select(self, index):
     self.spectrumGraph.initStyle()
     self.ui.hide_verticals_check.setChecked(False)
 
+    if self.ui.broadening_check.isChecked():
+            self.spectrumGraph.applyBroadening(self.p)
+
+
     if index == 0:
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
         self.populateTable(self.parser.freq, self.parser.ir_ints)
         self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'IR Intensities'])
-        self.spectrumGraph.fig.suptitle('IR Spectrum of #', fontsize=14)
+        self.spectrumGraph.ax.set_title('IR Spectrum of #', fontsize=14)
         # self.p.ylim = (self.parser.ir_ints.min(), self.parser.ir_ints.max())
     
     elif index == 1:
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.raman_ints)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.raman_ints, self.p)
         self.populateTable(self.parser.freq, self.parser.raman_ints)
         self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Raman Intensities'])
-        self.spectrumGraph.fig.suptitle('Raman Spectrum of #', fontsize=14)
+        self.spectrumGraph.ax.set_title('Raman Spectrum of #', fontsize=14)
         # self.p.ylim = (self.parser.raman_ints.min(), self.parser.raman_ints.max())
 
     elif index == 2:
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.frc_consts)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.frc_consts, self.p)
         self.populateTable(self.parser.freq, self.parser.frc_consts)
         self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'FRC Consts'])
-        self.spectrumGraph.fig.suptitle('FRC consts of #', fontsize=14)
+        self.spectrumGraph.ax.set_title('FRC consts of #', fontsize=14)
         # self.p.ylim = (self.parser.frc_consts.min(), self.parser.frc_consts.max())
 
     elif index == 3:
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.red_masses)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.red_masses, self.p)
         self.populateTable(self.parser.freq, self.parser.red_masses)
         self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Red Masses'])
-        self.spectrumGraph.fig.suptitle('Red Masses of #', fontsize=14)
+        self.spectrumGraph.ax.set_title('Red Masses of #', fontsize=14)
         # self.p.ylim = (self.parser.red_masses.min(), self.parser.red_masses.max())
     
     elif index == 4:
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_p)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_p, self.p)
         self.populateTable(self.parser.freq, self.parser.depolar_p)
         self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Depolar (P)'])
-        self.spectrumGraph.fig.suptitle('Depolar (P) of #', fontsize=14)
+        self.spectrumGraph.ax.set_title('Depolar (P) of #', fontsize=14)
         # self.p.ylim = (self.parser.depolar_p.min(), self.parser.depolar_p.max())
     
     elif index == 5:
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_u)
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.depolar_u, self.p)
         self.populateTable(self.parser.freq, self.parser.depolar_u)
         self.ui.spectrum_table.setHorizontalHeaderLabels(['Frequency', 'Depolar (U)'])
-        self.spectrumGraph.fig.suptitle('Depolar (U) of #', fontsize=14)
+        self.spectrumGraph.ax.set_title('Depolar (U) of #', fontsize=14)
         # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
 
     if self.ui.broadening_check.isChecked():
@@ -105,7 +109,7 @@ def trigger_apply_changes(self):
     self.p.xlabel = sd.xlabel_inp.text()
     self.p.ylabel = sd.ylabel_inp.text()
 
-    self.p.xlim = sd.xlim_max.value(), sd.xlim_min.value()
+    self.p.xlim = sd.xlim_min.value(), sd.xlim_max.value()
     self.p.ylim = sd.ylim_min.value(), sd.ylim_max.value()
 
     self.spectrumGraph.fig.subplots_adjust(
@@ -115,11 +119,11 @@ def trigger_apply_changes(self):
         right=self.p.padding_right,
     )
 
-    self.spectrumGraph.fig.suptitle(self.p.title)
+    self.spectrumGraph.ax.set_title(self.p.title)
     self.spectrumGraph.ax.set_xlabel(self.p.xlabel)
     self.spectrumGraph.ax.set_ylabel(self.p.ylabel)
     
-    self.spectrumGraph.ax.set_xlim(self.p.xlim)
+    self.spectrumGraph.ax.set_xlim(reversed(self.p.xlim))
     self.spectrumGraph.ax.set_ylim(self.p.ylim)
 
     if not self.ui.hide_verticals_check.isChecked():
@@ -132,6 +136,7 @@ def trigger_apply_changes(self):
         self.spectrumGraph._broaden[0].set_ls(self.p.broaden_style)
         self.spectrumGraph._broaden[0].set_color(self.p.broaden_color)
     self.spectrumGraph.fig.tight_layout()
+
     self.spectrumGraph.draw()
 
 def trigger_style_button(self, e):
@@ -144,9 +149,9 @@ def trigger_style_button(self, e):
         trigger_apply_changes(self)
 
 def trigger_pick_color(self, which):
-    QColorDialog = importlib.import_module('QtGui.QColorDialog')
+    QtGui = importlib.import_module('PyQt5.QtWidgets')
 
-    color = QColorDialog(self).getColor()
+    color = QtGui.QColorDialog(self).getColor()
     r, g, b, a = color.getRgb()
     back_color = "background-color: rgb({}, {}, {})".format(r, g, b)
     hex_color = self.rgb2hex(r, g, b)

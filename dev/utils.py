@@ -96,7 +96,7 @@ def save_figure(self, ):
     ax.tick_params(which='minor', length=2.5, direction='in', left=True,right=False,top=False,bottom=True)
     leg = ax.legend(loc='lower left', ncol=2, frameon=True, fancybox=False, fontsize=self.style_dialog.fontsize_inp.value())
     ax.invert_xaxis()
-    ax.set_xlim(self.p.xlim)
+    ax.set_xlim(reversed(self.p.xlim))
     fig.tight_layout()
 
     return fig
