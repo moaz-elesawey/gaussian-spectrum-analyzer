@@ -23,13 +23,13 @@ $ python run.py
 ![screenshot_2](./screenshots/screenshot_2.png)
 
 ### Force Consts Spectrum
-![screenshot_3](./screenshots/screenshot_3.png)
+![screenshot_3](./screenshots/screenshot_5.png)
 
 ### 3D Render
-![screenshot_3](./screenshots/screenshot_4.png)
+![screenshot_3](./screenshots/screenshot_3.png)
 
 ### Optimizated Structures
-![screenshot_3](./screenshots/screenshot_5.png)
+![screenshot_3](./screenshots/screenshot_4.png)
 
 ### Change Graph Styles
 ![screenshot_3](./screenshots/screenshot_6.png)
