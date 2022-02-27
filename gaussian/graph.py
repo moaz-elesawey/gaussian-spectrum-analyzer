@@ -86,7 +86,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.ax.set_title(p.title, fontsize=14)
 
         self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)
-        self.ax.set_xlim(p.xlim)
+        self.ax.set_xlim(reversed(p.xlim))
         
         self.draw()
 

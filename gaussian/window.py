@@ -4,7 +4,7 @@ from time import time
 from PyQt5.QtWidgets import (
     QDialog, QFileDialog, QTableWidgetItem, 
     QApplication, QMessageBox, QMainWindow, QToolBar, 
-    QAction
+    QAction, QHeaderView
 )
 from PyQt5.QtGui import QIcon, QPixmap
 
@@ -312,6 +312,9 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.populateOptimization()
 
+        self.ui.log_file_text.setText("")
+        self.ui.log_file_text.setText(''.join(self.parser.lines))
+
         s = time()
         # apply to graph
         self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
@@ -332,7 +335,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.ui.optimization_list.clear()
 
         self.ui.optimization_list.addItems(
-            [f" {i+1}\tRMS Force: {o}" for i, o in enumerate(self.parser.load_optimization_values()[1])]
+            [f" {i+1}\tΔE: {o}" for i, o in enumerate(self.parser.load_optimization_values()[0])]
         )
 
     def trigger_optimization_select(self, index):
@@ -377,7 +380,6 @@ class SpectrumAnalyzer(QMainWindow):
         self.spectrumGraph.ax.set_title(self.p.title)
         self.spectrumGraph.ax.set_xlabel(self.p.xlabel)
         self.spectrumGraph.ax.set_ylabel(self.p.ylabel)
-        # self.spectrumGraph.ax.invert_xaxis()
 
         self.spectrumGraph.draw()
 
@@ -386,11 +388,18 @@ class SpectrumAnalyzer(QMainWindow):
         self.energy_dialog.energies_table.clearContents()
 
         en = self.parser.load_energies()
+        header = self.energy_dialog.energies_table.horizontalHeader()
 
+        
         for j, en_typ in enumerate([en.au, en.Kcal_mol, en.KJ_mol, en.eV]):
             for i, e in enumerate(en_typ):
                 self.energy_dialog.energies_table.setItem(i, j, QTableWidgetItem("{:.5f}".format(e)))
 
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        
         self.energy_dialog.show()
 
     def load_and_render(self):
@@ -400,7 +409,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.compound = []
         self.compound_bonds = []
 
-        self.viewer.setBackgroundColor("#111111")
+        self.viewer.setBackgroundColor("#333333")
         self.viewer.setCameraPosition(distance=25)
 
         geom_tables = np.array(self.parser.get_position_table())
