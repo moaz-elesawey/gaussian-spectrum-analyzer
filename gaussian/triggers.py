@@ -1,5 +1,6 @@
 
 import importlib
+from time import time
 
 
 def trigger_tight_layout(self, e):
@@ -24,10 +25,6 @@ def trigger_spectrum_select(self, index):
     self.spectrumGraph.ax.cla()
     self.spectrumGraph.initStyle()
     self.ui.hide_verticals_check.setChecked(False)
-
-    if self.ui.broadening_check.isChecked():
-            self.spectrumGraph.applyBroadening(self.p)
-
 
     if index == 0:
         self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
@@ -71,10 +68,14 @@ def trigger_spectrum_select(self, index):
         self.spectrumGraph.ax.set_title('Depolar (U) of #', fontsize=14)
         # self.p.ylim = (self.parser.depolar_u.min(), self.parser.depolar_u.max())
 
+    s = time()
+
     if self.ui.broadening_check.isChecked():
         self.spectrumGraph.applyBroadening(self.p)
+    print("took change: ", time()-s)
 
     self.spectrumGraph.draw()
+
 
 def trigger_table_selection(self):
     idx = self.ui.spectrum_table.selectedIndexes()[-1].row()

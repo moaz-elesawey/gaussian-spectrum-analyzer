@@ -129,7 +129,8 @@ class SpectrumGraph(FigureCanvasQTAgg):
         
         if len(self.ints) == 0 or len(self.freq) == 0: return
 
-        x= np.linspace(min(self.freq)-200, max(self.freq)+200, num=1000, endpoint=True)
+        x = np.linspace(min(self.freq)-200, max(self.freq)+200, num=500, endpoint=True)
+        s = time()
 
         gInts = []
         for Fi in x:
@@ -141,7 +142,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
             gInts = (1-(gInts/gInts.max()))*100
         else:
             gInts = ((gInts/gInts.max()))*100
-
+        print('broaden took: ', time()-s)
         self._broaden = self.ax.plot(x, gInts, color=p.broaden_color, linestyle=p.broaden_style, 
                 linewidth=p.broaden_width, label='Spectrum')
         

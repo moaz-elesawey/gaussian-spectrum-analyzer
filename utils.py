@@ -26,6 +26,13 @@ class MESSAGE:
     TOT_ENERGY      = "Predicted change in Energy="
     OPTMIZED_GEOM   = " Center     Atomic     Atomic              Coordinates (Angstroms)"
 
+    THERMAL_ENERGY      = " Thermal correction to Energy="
+    THERMAL_ENTHALPY    = " Thermal correction to Enthalpy="
+    THERMAL_GIBBS       = " Thermal correction to Gibbs Free Energy="
+    ZERO_POINT_CORR     = " Zero-point correction="
+    ZERO_POINT_ENERGY   = " Sum of electronic and zero-point Energies="
+
+
 
 EXPORT_FORMATS = [
     'PNG',

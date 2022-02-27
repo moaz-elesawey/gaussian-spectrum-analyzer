@@ -2,6 +2,7 @@ import re
 from numpy import array
 from pprint import pprint
 from time import time
+from gaussian.energy import Energy
 
 from gaussian.mol.optm import OptimizationStep
 
@@ -272,3 +273,32 @@ class Parser:
         
         return geom
 
+
+    def format_thermal_energy(self, l):
+        l = l.split('=')[-1].strip()
+        l = l.split(' ')[0].strip()
+
+        return float(l)
+
+    def load_energies(self):
+        zero_point_correction = None
+        thermal_energy = None
+        thermal_enthalpy = None
+        thermal_gibbs = None
+        zero_point_energyies = None
+
+        for l in self.lines:
+            if MESSAGE.THERMAL_ENERGY in l:
+                thermal_energy = self.format_thermal_energy(l)
+            elif MESSAGE.THERMAL_ENTHALPY in l:
+                thermal_enthalpy = self.format_thermal_energy(l)
+            elif MESSAGE.THERMAL_GIBBS in l:
+                thermal_gibbs = self.format_thermal_energy(l)
+            elif MESSAGE.ZERO_POINT_CORR in l:
+                zero_point_correction = self.format_thermal_energy(l)
+            elif MESSAGE.ZERO_POINT_ENERGY in l:
+                zero_point_energyies = self.format_thermal_energy(l)
+        
+        return Energy(thermal_energy, thermal_enthalpy, thermal_gibbs, 
+                      zero_point_correction, zero_point_energyies
+                )

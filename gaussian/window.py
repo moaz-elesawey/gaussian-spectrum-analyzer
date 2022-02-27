@@ -1,18 +1,18 @@
-from argparse import Action
 import os
 import sys
 from time import time
 from PyQt5.QtWidgets import (
     QDialog, QFileDialog, QTableWidgetItem, 
-    QApplication, QMessageBox, QComboBox, 
-    QHBoxLayout, QFrame, QMainWindow, QToolBar, 
+    QApplication, QMessageBox, QMainWindow, QToolBar, 
     QAction
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QPixmap, QFont
+from PyQt5.QtGui import QIcon, QPixmap
 
-from ui import Ui_SpectrumAnalyzer, Ui_StyleDialog
+from ui import Ui_SpectrumAnalyzer
+
 from gaussian import *
+
+from .dialogs import StyleDialog, EnergyDialog
 from gaussian.togglers import (
     toggle_broadening, toggle_grid,
     toggle_hide_verticals,
@@ -35,26 +35,13 @@ from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR, SPECTRUM_TYPES, s
 import pyqtgraph.opengl as gl
 import numpy as np
 
-
-class StyleDialog(QDialog, Ui_StyleDialog):
-    def __init__(self, *a, **kw):
-        super().__init__(*a, **kw)
-
-        self.setupUi(self)
-        self.setWindowTitle('Change Graph Style')
-
-
 class SpectrumAnalyzer(QMainWindow):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
 
         self.ui = Ui_SpectrumAnalyzer()
         self.ui.setupUi(self)
-        # self.setWindowFlags(
-        #     Qt.WindowCloseButtonHint | 
-        #     Qt.WindowMaximizeButtonHint | 
-        #     Qt.WindowMinimizeButtonHint
-        # )
+
         self.setWindowIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'] ,"spectrum-icon.png")))
         self.setWindowTitle("GSA Gaussian Spectrum Analyzer")
         self.resize(1280, 750)
@@ -161,7 +148,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.quitAction = QAction("&Quit")
         self.quitAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'quit.png')))
 
-        self.changeStyleAction = QAction('&Change Style')
+        self.changeStyleAction = QAction('&Show Style Dialog')
 
         self.toggleBroaden = QAction("Show/Hide Broaden")
         self.toggleBroaden.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'broaden-icon.png')))
@@ -176,7 +163,8 @@ class SpectrumAnalyzer(QMainWindow):
         
         self.helpAction = QAction("&Help")
 
-        self.editMenu.addAction(self.changeStyleAction)
+        self.shotEnergiesAction = QAction("&Show Molecule Energies")
+
 
         self.fileMenu.addAction(self.openAction)
         self.fileMenu.addAction(self.saveAction)
@@ -184,11 +172,14 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.aboutMenu.addAction(self.helpAction)
 
-        self.viewMenu.addAction(self.toggleBroaden)
-        self.viewMenu.addAction(self.toggleSpikes)
-        self.viewMenu.addAction(self.tightFigureLayoutAction)
-        self.viewMenu.addAction(self.zoomOutAction)
-        self.viewMenu.addAction(self.toggleGrid)
+        self.editMenu.addAction(self.toggleBroaden)
+        self.editMenu.addAction(self.toggleSpikes)
+        self.editMenu.addAction(self.tightFigureLayoutAction)
+        self.editMenu.addAction(self.zoomOutAction)
+        self.editMenu.addAction(self.toggleGrid)
+
+        self.viewMenu.addAction(self.shotEnergiesAction)
+        self.viewMenu.addAction(self.changeStyleAction)
 
         self.toolBar.addAction(self.openAction)
         self.toolBar.addAction(self.saveAction)
@@ -253,6 +244,8 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.ui.optimization_list.currentRowChanged.connect(self.trigger_optimization_select)
         self.ui.spectrumType.currentIndexChanged.connect(self.trigger_change_spectrum_type)
+
+        self.shotEnergiesAction.triggered.connect(self.trigger_energy_dialog)
     
     def trigger_open_file(self):
         filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
@@ -368,8 +361,6 @@ class SpectrumAnalyzer(QMainWindow):
     def trigger_change_spectrum_type(self, index):
         self.p.trans = index == 0
 
-            
-
         self.spectrumGraph.ax.cla()
         spectrum_type = "Absorbance ($A = \epsilon c l$)" if index else "Transmittance (T%)"
         self.p.ylabel = spectrum_type
@@ -389,6 +380,18 @@ class SpectrumAnalyzer(QMainWindow):
         # self.spectrumGraph.ax.invert_xaxis()
 
         self.spectrumGraph.draw()
+
+    def trigger_energy_dialog(self):
+        self.energy_dialog = EnergyDialog()
+        self.energy_dialog.energies_table.clearContents()
+
+        en = self.parser.load_energies()
+
+        for j, en_typ in enumerate([en.au, en.Kcal_mol, en.KJ_mol, en.eV]):
+            for i, e in enumerate(en_typ):
+                self.energy_dialog.energies_table.setItem(i, j, QTableWidgetItem("{:.5f}".format(e)))
+
+        self.energy_dialog.show()
 
     def load_and_render(self):
 
