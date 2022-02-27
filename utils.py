@@ -18,7 +18,7 @@ class MESSAGE:
     VIBRATION_STATE = "Atom AN      X      Y      Z        X      Y      Z        X      Y      Z"
     GEOMETRY        = " Center     Atomic     Atomic              Coordinates (Angstroms)"
     BOND            = "                           !    Initial Parameters    !"
-    SEPARATOR       = "GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"
+    SEPARATOR       = " --------------------------------------------------------------------------------"
     RMS_FORCE       = "RMS     Force"
     RMS_DISPL       = "RMS     Displacement"
     MAX_FORCE       = "Maximum Force"

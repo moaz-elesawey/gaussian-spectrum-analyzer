@@ -157,7 +157,7 @@ class Parser:
                 atom = Atom(ent[0], ent[1], ent[2], ent[3], ent[4], ent[5])
                 tb.append(atom)
             except Exception as e:
-                print(str(e))
+                pass
 
         return tb
 
@@ -168,7 +168,7 @@ class Parser:
 
         for idx, l in enumerate(self.lines):
             if MESSAGE.GEOMETRY in l:
-                table = self.lines[idx+3:idx+atoms_count+4]
+                table = self.lines[idx+3:idx+atoms_count+10]
                 table = self.format_table(table)
                 geom_tables.append(table)
         return geom_tables
@@ -266,7 +266,7 @@ class Parser:
 
         for idx, l in enumerate(self.lines):
             if MESSAGE.OPTMIZED_GEOM in l:
-                geom.append(self.format_optimzed_table(self.lines[idx+3:idx+4+atoms_count]))
+                geom.append(self.format_optimzed_table(self.lines[idx+3:idx+10+atoms_count]))
 
         del geom[0]
         

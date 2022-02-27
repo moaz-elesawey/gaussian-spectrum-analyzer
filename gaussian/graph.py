@@ -16,9 +16,9 @@ pyplot.rcParams['font.size'] = 9
 
 class Properties:
     def __init__(self):
-        self.xlabel          = ''
-        self.ylabel          = ''
-        self.title           = ''
+        self.xlabel          = 'Wavenumber ($cm^{-1}$)'
+        self.ylabel          = 'Transmittance (T\%)'
+        self.title           = 'Spectrum of #'
         self.broaden_color   = '#333333'
         self.broaden_style   = '-'
         self.broaden_width   = 1
@@ -36,7 +36,6 @@ class Properties:
         self.padding_bottom  = 0.13
         self.padding_left    = 0.13
         self.padding_right   = 0.98
-
         self.trans           = 1
 
 
@@ -62,10 +61,15 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.initStyle()
         
     def PlotData(self, freq:np.ndarray, ints:np.ndarray, p):
+
         self.freq = freq
         self.ints = ints
 
+        self.ax.cla()
+
+        if len(self.ints) == 0 or len(self.freq) == 0: return
         if len(self.freq) != len(self.ints): return
+
 
         if p.trans:
             self.peaks_plot = self.ax.vlines(self.freq, ymin=100, ymax=100-self.ints, colors='#292929', label='Peaks')
@@ -76,6 +80,14 @@ class SpectrumGraph(FigureCanvasQTAgg):
         if not len(self.freq) == 0:
             self.ax.set_xlim(max(self.freq), min(self.freq))
 
+
+        self.ax.set_xlabel(p.xlabel, fontsize=10)
+        self.ax.set_ylabel(p.ylabel, fontsize=10)
+        self.ax.set_title(p.title, fontsize=14)
+
+        self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)
+        self.ax.set_xlim(p.xlim)
+        
         self.draw()
 
     def initStyle(self):
@@ -89,7 +101,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         self.ax.tick_params(which='major', length=6, direction='out', left=True,right=False,top=False,bottom=True)
         self.ax.tick_params(which='minor', length=3, direction='out', left=True,right=False,top=False,bottom=True)
         self.ax.set_xlabel('Wavenumber $(cm^{-1})$', fontsize=10)
-        self.ax.set_ylabel('Intensity ($\epsilon$)', fontsize=10)
+        self.ax.set_ylabel('Transmittance (T%)', fontsize=10)
         self.ax.set_title('IR Spectrum of #', fontsize=14)
 
         self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)

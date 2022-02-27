@@ -368,7 +368,11 @@ class SpectrumAnalyzer(QMainWindow):
     def trigger_change_spectrum_type(self, index):
         self.p.trans = index == 0
 
+            
+
         self.spectrumGraph.ax.cla()
+        spectrum_type = "Absorbance ($A = \epsilon c l$)" if index else "Transmittance (T%)"
+        self.p.ylabel = spectrum_type
 
         if not self.ui.hide_verticals_check.isChecked():
             self.spectrumGraph.PlotData(self.spectrumGraph.freq, self.spectrumGraph.ints, self.p)
@@ -399,7 +403,11 @@ class SpectrumAnalyzer(QMainWindow):
         geom_tables = np.array(self.parser.get_position_table())
 
         struct1 = geom_tables[0]
+
         self.bonds = self.parser.load_geometry_table()
+
+        print(self.bonds)
+        print(struct1)
 
         for idx, b in enumerate(self.bonds):
             l = struct1[b[0]-1]
