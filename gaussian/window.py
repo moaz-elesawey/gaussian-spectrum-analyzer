@@ -1,5 +1,6 @@
 import os
 import sys
+import csv
 from time import time
 from PyQt5.QtWidgets import (
     QDialog, QFileDialog, QTableWidgetItem, 
@@ -12,7 +13,8 @@ from ui import Ui_SpectrumAnalyzer
 
 from gaussian import *
 
-from .dialogs import StyleDialog, EnergyDialog
+from .dialogs import StyleDialog, EnergyDialog, OptimizationDialog
+
 from gaussian.togglers import (
     toggle_broadening, toggle_grid,
     toggle_hide_verticals,
@@ -30,7 +32,7 @@ from .triggers import (
     trigger_table_selection, trigger_tight_layout
 )
 
-from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR, SPECTRUM_TYPES, save_figure
+from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR, SPECTRUM_TYPES, convert_to_csv, save_figure
 
 import pyqtgraph.opengl as gl
 import numpy as np
@@ -56,6 +58,8 @@ class SpectrumAnalyzer(QMainWindow):
         self.original_compound = []
         self.grid_toggled = False
 
+        self.optm_dialog = None
+        self.energy_dialog = None
 
         self.createActions()
 
@@ -163,7 +167,8 @@ class SpectrumAnalyzer(QMainWindow):
         
         self.helpAction = QAction("&Help")
 
-        self.shotEnergiesAction = QAction("&Show Molecule Energies")
+        self.showEnergiesAction = QAction("&Show Molecule Energies")
+        self.showOptmAction = QAction("&Show Optimization Steps")
 
 
         self.fileMenu.addAction(self.openAction)
@@ -178,7 +183,8 @@ class SpectrumAnalyzer(QMainWindow):
         self.editMenu.addAction(self.zoomOutAction)
         self.editMenu.addAction(self.toggleGrid)
 
-        self.viewMenu.addAction(self.shotEnergiesAction)
+        self.viewMenu.addAction(self.showEnergiesAction)
+        self.viewMenu.addAction(self.showOptmAction)
         self.viewMenu.addAction(self.changeStyleAction)
 
         self.toolBar.addAction(self.openAction)
@@ -245,7 +251,8 @@ class SpectrumAnalyzer(QMainWindow):
         self.ui.optimization_list.currentRowChanged.connect(self.trigger_optimization_select)
         self.ui.spectrumType.currentIndexChanged.connect(self.trigger_change_spectrum_type)
 
-        self.shotEnergiesAction.triggered.connect(self.trigger_energy_dialog)
+        self.showEnergiesAction.triggered.connect(self.trigger_energy_dialog)
+        self.showOptmAction.triggered.connect(self.trigger_optm_dialog)
     
     def trigger_open_file(self):
         filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
@@ -394,13 +401,40 @@ class SpectrumAnalyzer(QMainWindow):
         for j, en_typ in enumerate([en.au, en.Kcal_mol, en.KJ_mol, en.eV]):
             for i, e in enumerate(en_typ):
                 self.energy_dialog.energies_table.setItem(i, j, QTableWidgetItem("{:.5f}".format(e)))
+            header.setSectionResizeMode(j, QHeaderView.ResizeToContents)
 
-        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        
+            
         self.energy_dialog.show()
+
+    def trigger_optm_dialog(self):
+        self.optm_dialog = OptimizationDialog()
+
+        self.optm_dialog.export_csv.clicked.connect(self.trigger_export_optm_data)
+
+        tb = self.optm_dialog.data_table
+        tb.clearContents()
+
+        header = tb.horizontalHeader()
+
+        self.optms = np.vstack(self.parser.load_optimization_values())
+
+        tb.setRowCount(self.optms.shape[1])
+        tb.setColumnCount(self.optms.shape[0])
+
+        tb.setHorizontalHeaderLabels([' ΔE ', ' RMS Force ', " RMS Displ ", " Max Force ", " Max Displ "])
+
+        for j, col in enumerate(self.optms):
+            for i, val in enumerate(col):
+                tb.setItem(i, j, QTableWidgetItem("{:.5f}".format(val)))
+            header.setSectionResizeMode(j, QHeaderView.ResizeToContents)
+
+        self.optm_dialog.show()
+
+    def trigger_export_optm_data(self):
+        filename, _ = QFileDialog.getSaveFileName(filter="*.csv")
+        if not filename: return
+        convert_to_csv(filename, self.optms.reshape(-1, 5).round(6))
+
 
     def load_and_render(self):
 
@@ -418,9 +452,6 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.bonds = self.parser.load_geometry_table()
 
-        print(self.bonds)
-        print(struct1)
-
         for idx, b in enumerate(self.bonds):
             l = struct1[b[0]-1]
             r = struct1[b[1]-1]
@@ -437,20 +468,6 @@ class SpectrumAnalyzer(QMainWindow):
             self.compound.append(m3)
             self.original_compound.append(atom)
 
-    
-    def animate(self):
-        for idx, atom in enumerate(self.compound):
-            # atom.resetTransform()
-            print('updating')
-            old_pos = []
-            for old, new in zip(self.original_compound[idx].pos, self.parser.animations[0][idx]):
-                old_pos.append(old-new)
-            atom.translate(*old_pos, local=True)
-
-            new_pos = []
-            for old, new in zip(self.original_compound[idx].pos, self.parser.animations[0][idx]):
-                new_pos.append(old+new)
-            atom.translate(*new_pos, local=True)
 
     @staticmethod
     def generate_broadening_for_export(sigma, freq, ints):
@@ -481,6 +498,8 @@ class SpectrumAnalyzer(QMainWindow):
             event.accept()
         elif reply == QMessageBox.No:
             event.accept()
+            if self.optm_dialog: self.optm_dialog.close()
+            if self.energy_dialog: self.energy_dialog.close()
         elif reply == QMessageBox.Cancel:
             event.ignore()
         else:

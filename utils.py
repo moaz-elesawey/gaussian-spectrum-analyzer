@@ -1,3 +1,4 @@
+import csv
 import importlib
 import os
 from numpy import arange
@@ -107,3 +108,12 @@ def save_figure(self, ):
     fig.tight_layout()
 
     return fig
+
+
+def convert_to_csv(filename, data):
+    with open(filename, 'w') as w:
+        writer = csv.writer(w, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        writer.writerow(['E ', 'RMS Force', "RMS Displ", "Max Force", "Max Displ"])
+        writer.writerows(data)
+

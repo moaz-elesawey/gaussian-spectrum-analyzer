@@ -31,8 +31,17 @@ $ python run.py
 ### Optimizated Structures
 ![screenshot_3](./screenshots/screenshot_4.png)
 
+### LOG File Viewer
+![screenshot_3](./screenshots/screenshot_8.png)
+
 ### Change Graph Styles
 ![screenshot_3](./screenshots/screenshot_6.png)
+
+### Optimization Energies
+![screenshot_3](./screenshots/screenshot_10.png)
+
+### Molecle Energies
+![screenshot_3](./screenshots/screenshot_9.png)
 
 ### Quit the Program (No)
 ![screenshot_3](./screenshots/screenshot_7.png)
