@@ -85,7 +85,7 @@ def trigger_table_selection(self):
 
 
 def trigger_change_style(self):
-    self.style_dialog.exec()
+    self.style_dialog.exec_()
 
 # trigger style changes
 def trigger_apply_changes(self):
@@ -150,7 +150,7 @@ def trigger_style_button(self, e):
         trigger_apply_changes(self)
 
 def trigger_pick_color(self, which):
-    QtGui = importlib.import_module('PyQt5.QtWidgets')
+    QtGui = importlib.import_module('PySide2.QtWidgets')
 
     color = QtGui.QColorDialog(self).getColor()
     r, g, b, a = color.getRgb()

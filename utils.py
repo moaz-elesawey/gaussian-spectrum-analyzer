@@ -13,7 +13,7 @@ class MESSAGE:
     FRC_CONSTS      = " Frc consts  -- "
     DEPOLAR_P       = " Depolar (P) -- "
     DEPOLAR_U       = " Depolar (U) -- "
-    NMR_SHEILDING   = " Isotropic =   "
+    NMR_SHEILDING   = " Isotropic ="
     UV_SIGNAL       = " Excited State   "
     ATOM_COUNT      = "Stoichiometry"
     VIBRATION_STATE = "Atom AN      X      Y      Z        X      Y      Z        X      Y      Z"

@@ -80,20 +80,19 @@ class SpectrumGraph(FigureCanvasQTAgg):
         if not len(self.freq) == 0:
             self.ax.set_xlim(max(self.freq), min(self.freq))
 
-
         self.ax.set_xlabel(p.xlabel, fontsize=10)
         self.ax.set_ylabel(p.ylabel, fontsize=10)
         self.ax.set_title(p.title, fontsize=14)
 
         self.ax.set_xticks(np.arange(-250, 4001, 250), fontsize=12)
         self.ax.set_xlim(reversed(p.xlim))
-        
+
         self.draw()
 
     def initStyle(self):
         # if len(self.ints) == 0: return
 
-        self.fig.subplots_adjust(top=0.90, left=0.09, right=0.97, bottom=0.13)
+        self.fig.subplots_adjust(top=0.90, left=0.08, right=0.97, bottom=0.13)
 
         self.ax.spines["top"].set_visible(True)
         self.ax.spines["right"].set_visible(True)
@@ -129,7 +128,7 @@ class SpectrumGraph(FigureCanvasQTAgg):
         
         if len(self.ints) == 0 or len(self.freq) == 0: return
 
-        x = np.linspace(min(self.freq)-200, max(self.freq)+200, num=500, endpoint=True)
+        x = np.linspace(min(self.freq)-200, max(self.freq)+200, num=600, endpoint=True)
         s = time()
 
         gInts = []

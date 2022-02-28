@@ -28,3 +28,7 @@ class Energy:
     def __repr__(self) -> str:
         return str(self.energies)
 
+    @property
+    def ok(self):
+        return (len(self.energies) != 0) and (self.energies[0] is not None)
+

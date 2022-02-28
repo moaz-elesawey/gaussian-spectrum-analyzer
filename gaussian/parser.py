@@ -3,6 +3,7 @@ from numpy import array
 from pprint import pprint
 from time import time
 from gaussian.energy import Energy
+from gaussian.mol.nmr_signal import NMRSpectrum
 
 from gaussian.mol.optm import OptimizationStep
 
@@ -26,8 +27,7 @@ class Parser:
         self.depolar_u      = array(self.load_depolar_u())
         self.frc_consts     = array(self.load_frc_consts())
         self.red_masses     = array(self.load_red_masses())
-        self.nmr_sheilding  = array(self.load_nmr_spectrum())
-        self.uv_spectrum    = array(self.load_uv_spectrum())
+        # self.uv_spectrum    = array(self.load_uv_spectrum())
 
         self.ir_ints        = (self.ir_ints/self.ir_ints.max())*100 if len(self.ir_ints) > 0 else self.ir_ints
         self.raman_ints     = (self.raman_ints/self.raman_ints.max())*100 if len(self.raman_ints) > 0 else self.raman_ints
@@ -35,8 +35,6 @@ class Parser:
         self.depolar_u      = (self.depolar_u/self.depolar_u.max())*100 if len(self.depolar_u) > 0 else self.depolar_u
         self.frc_consts     = (self.frc_consts/self.frc_consts.max())*100 if len(self.frc_consts) > 0 else self.frc_consts
         self.red_masses     = (self.red_masses/self.red_masses.max())*100 if len(self.red_masses) > 0 else self.red_masses
-        self.nmr_sheilding  = (self.nmr_sheilding/self.nmr_sheilding.max())*100 if len(self.nmr_sheilding) > 0 else self.nmr_sheilding
-        self.uv_spectrum    = (self.uv_spectrum/self.uv_spectrum.max())*100 if len(self.uv_spectrum) > 0 else self.uv_spectrum
 
         self.animations     = self.load_vibration_states()
 
@@ -114,16 +112,18 @@ class Parser:
         return frc_consts
 
     def load_nmr_spectrum(self):
-        nmr_sheilding = []
+        signals = []
 
         for l in self.lines:
             if MESSAGE.NMR_SHEILDING in l:
                 trimmed_l = self._RE_COMBINE_WHITESPACE.sub(" ", l).strip().lstrip()
                 data = trimmed_l.split(' ')
                 sig = NMRSignal(int(data[0]), data[1], float(data[4]), float(data[-1]))
-                nmr_sheilding.append(float(data[4]))
+                signals.append(sig)
 
-        return nmr_sheilding
+        nmr_spectrum = NMRSpectrum(signals)
+
+        return nmr_spectrum
 
     def load_uv_spectrum(self):
         uv_spectrum = []

@@ -160,7 +160,7 @@
                <property name="bottomMargin">
                 <number>5</number>
                </property>
-               <item alignment="Qt::AlignTop">
+               <item>
                 <widget class="QFrame" name="spectrumFrame">
                  <property name="font">
                   <font>

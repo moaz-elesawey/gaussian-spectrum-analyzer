@@ -1,9 +1,9 @@
 import sys
 import os
 
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QApplication
-from PyQt5.QtCore import QTimer, Qt, QSize
-from PyQt5.QtGui import QColor, QPixmap
+from PySide2.QtWidgets import QWidget, QGraphicsDropShadowEffect, QApplication
+from PySide2.QtCore import QTimer, Qt, QSize
+from PySide2.QtGui import QColor, QPixmap
 
 import importlib
 
@@ -13,6 +13,7 @@ from utils import PATHS
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 counter = 0
+TEST = True
 
 class SplashScreen(QWidget):
     packages_loaded = False
@@ -70,5 +71,10 @@ class SplashScreen(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    sp = SplashScreen()
-    sys.exit(app.exec())
+    if not TEST:
+        sp = SplashScreen()
+    else:
+        from gaussian import SpectrumAnalyzer
+        sp = SpectrumAnalyzer()
+        sp.show()
+    sys.exit(app.exec_())
