@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from ui import Ui_SpectrumAnalyzer
 
 from gaussian import *
+from .writer import Writer
 
 from .dialogs import NMRDialog, StyleDialog, EnergyDialog, OptimizationDialog
 
@@ -370,8 +371,10 @@ class SpectrumAnalyzer(QMainWindow):
 
         s = time()
         # apply to graph
-        # self.ui.log_file_text.setText("")
-        # self.ui.log_file_text.setText("".join(self.parser.lines))
+        writer = Writer(self.parser)
+
+        self.ui.log_file_text.setText("")
+        self.ui.log_file_text.setText(writer.generate_doc())
 
         print('took: ', time()-s)
         

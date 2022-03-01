@@ -27,7 +27,6 @@ class Parser:
         self.depolar_u      = array(self.load_depolar_u())
         self.frc_consts     = array(self.load_frc_consts())
         self.red_masses     = array(self.load_red_masses())
-        # self.uv_spectrum    = array(self.load_uv_spectrum())
 
         self.ir_ints        = (self.ir_ints/self.ir_ints.max())*100 if len(self.ir_ints) > 0 else self.ir_ints
         self.raman_ints     = (self.raman_ints/self.raman_ints.max())*100 if len(self.raman_ints) > 0 else self.raman_ints
