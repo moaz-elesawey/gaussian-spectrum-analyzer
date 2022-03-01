@@ -47,4 +47,4 @@ $ python run.py
 ![screenshot_3](./screenshots/screenshot_7.png)
 
 ## Info
-You can install the compiled version if you are using windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v3.0-alpha)
+You can install the compiled version if you are using windows os [Here](https://github.com/moaz-elesawey/gaussian-spectrum-analyzer/releases/tag/v5.0-alpha)

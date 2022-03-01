@@ -94,7 +94,7 @@
      </row>
      <column>
       <property name="text">
-       <string>Hartree (u.a)</string>
+       <string>Hartree (a.u)</string>
       </property>
      </column>
      <column>

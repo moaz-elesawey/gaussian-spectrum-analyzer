@@ -5,6 +5,11 @@ from PySide2.QtWidgets import QWidget, QGraphicsDropShadowEffect, QApplication
 from PySide2.QtCore import QTimer, Qt, QSize
 from PySide2.QtGui import QColor, QPixmap
 
+
+import matplotlib
+import pyqtgraph
+import pyqtgraph.opengl
+
 import importlib
 
 from ui.ui_splash import Ui_Form

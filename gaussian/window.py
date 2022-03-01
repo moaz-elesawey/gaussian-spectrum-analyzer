@@ -1,9 +1,6 @@
-from concurrent.futures import thread
 import os
-from pprint import pprint
 import sys
-import csv
-from threading import Thread
+
 from time import time
 from PySide2.QtWidgets import (
     QDialog, QFileDialog, QTableWidgetItem, 
