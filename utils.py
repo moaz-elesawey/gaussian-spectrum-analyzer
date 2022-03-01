@@ -110,10 +110,10 @@ def save_figure(self, ):
     return fig
 
 
-def convert_to_csv(filename, data):
+def convert_to_csv(filename, header, data):
     with open(filename, 'w') as w:
         writer = csv.writer(w, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow(['E ', 'RMS Force', "RMS Displ", "Max Force", "Max Displ"])
+        writer.writerow(header)
         writer.writerows(data)
 

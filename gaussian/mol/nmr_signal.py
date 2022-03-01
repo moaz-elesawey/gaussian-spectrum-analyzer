@@ -65,7 +65,7 @@ class NMRSpectrum:
         nx = np.linspace(min(self.sheilding)-100, max(self.sheilding)+100, 1000, endpoint=True)
 
         for Fi in nx:
-            gI = np.sum(self.deg*np.exp(-((((self.sheilding-Fi)/4)**2))))
+            gI = np.sum(self.deg*np.exp(-((np.float_power((self.sheilding-Fi)/3, (2))))))
             continous_spectrum.append(gI)
 
         continous_spectrum = np.array(continous_spectrum)

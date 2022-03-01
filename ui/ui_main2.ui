@@ -232,7 +232,7 @@
                        </property>
                        <item>
                         <property name="text">
-                         <string>IR Intensities</string>
+                         <string>IR Spectrum</string>
                         </property>
                        </item>
                        <item>
@@ -242,7 +242,7 @@
                        </item>
                        <item>
                         <property name="text">
-                         <string>FRC Consts</string>
+                         <string>FRC Constants</string>
                         </property>
                        </item>
                        <item>

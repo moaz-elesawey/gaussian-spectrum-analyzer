@@ -13,7 +13,7 @@ from utils import PATHS
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 counter = 0
-TEST = True
+TEST = False
 
 class SplashScreen(QWidget):
     packages_loaded = False

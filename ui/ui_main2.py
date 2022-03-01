@@ -654,9 +654,9 @@ class Ui_SpectrumAnalyzer(object):
 
     def retranslateUi(self, SpectrumAnalyzer):
         SpectrumAnalyzer.setWindowTitle(QCoreApplication.translate("SpectrumAnalyzer", u"MainWindow", None))
-        self.spectrums_select.setItemText(0, QCoreApplication.translate("SpectrumAnalyzer", u"IR Intensities", None))
+        self.spectrums_select.setItemText(0, QCoreApplication.translate("SpectrumAnalyzer", u"IR Spectrum", None))
         self.spectrums_select.setItemText(1, QCoreApplication.translate("SpectrumAnalyzer", u"Raman Activity", None))
-        self.spectrums_select.setItemText(2, QCoreApplication.translate("SpectrumAnalyzer", u"FRC Consts", None))
+        self.spectrums_select.setItemText(2, QCoreApplication.translate("SpectrumAnalyzer", u"FRC Constants", None))
         self.spectrums_select.setItemText(3, QCoreApplication.translate("SpectrumAnalyzer", u"Red Masses", None))
         self.spectrums_select.setItemText(4, QCoreApplication.translate("SpectrumAnalyzer", u"Depolar (P)", None))
         self.spectrums_select.setItemText(5, QCoreApplication.translate("SpectrumAnalyzer", u"Depolar (U)", None))

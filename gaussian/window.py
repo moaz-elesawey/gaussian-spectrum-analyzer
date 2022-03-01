@@ -1,6 +1,9 @@
+from concurrent.futures import thread
 import os
+from pprint import pprint
 import sys
 import csv
+from threading import Thread
 from time import time
 from PySide2.QtWidgets import (
     QDialog, QFileDialog, QTableWidgetItem, 
@@ -61,6 +64,7 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.optm_dialog = None
         self.energy_dialog = None
+        self.nmr_dialog = None
 
         self.createActions()
 
@@ -154,15 +158,14 @@ class SpectrumAnalyzer(QMainWindow):
         self.resultsMenu = menuBar.addMenu('&Results')
         self.aboutMenu = menuBar.addMenu('&About')
 
-        self.openAction = QAction("&Open Gaussian File")
+        self.openAction = QAction("&Open Gaussian File (.LOG)")
         self.openAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'open-file.png')))
         self.openAction.setShortcut('Ctrl+o')
 
-        self.saveAction = QAction("&Save Graph")
+        self.saveAction = QAction("&Export Graph")
         self.saveAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'save-image.png')))
         self.saveAction.setShortcut("Ctrl+e")
 
-        self.fileMenu.addSeparator()
         self.quitAction = QAction("&Quit")
         self.quitAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'quit.png')))
         self.quitAction.setShortcut("Ctrl+q")
@@ -193,16 +196,19 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.showEnergiesAction = QAction("&Show Molecule Energies")
         self.showEnergiesAction.setShortcut("Ctrl+Shift+e")
+        self.showEnergiesAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'energy-icon.png')))
 
         self.showOptmAction = QAction("&Show Optimization Steps")
         self.showOptmAction.setShortcut("Ctrl+Shift+o")
+        self.showOptmAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'optm-icon.png')))
 
         self.showNMRAction = QAction("&Show NMR Spectrum")
-        self.showNMRAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'nmr-icon.jpg')))
+        self.showNMRAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'nmr-icon.png')))
         self.showNMRAction.setShortcut("Ctrl+Shift+n")
 
         self.fileMenu.addAction(self.openAction)
         self.fileMenu.addAction(self.saveAction)
+        self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.quitAction)
 
         self.aboutMenu.addAction(self.helpAction)
@@ -229,6 +235,8 @@ class SpectrumAnalyzer(QMainWindow):
         self.toolBar.addAction(self.zoomOutAction)
         self.toolBar.addAction(self.toggleGrid)
         self.toolBar.addSeparator()
+        self.toolBar.addAction(self.showEnergiesAction)
+        self.toolBar.addAction(self.showOptmAction)
         self.toolBar.addAction(self.showNMRAction)
 
         self.addToolBar(self.toolBar)
@@ -356,17 +364,20 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.populateOptimization()
 
-        # self.ui.log_file_text.setText("")
-        # self.ui.log_file_text.setText(''.join(self.parser.lines))
 
         self.showNMRAction.setDisabled(not self.parser.load_nmr_spectrum().ok)
         self.showOptmAction.setDisabled(not (len(self.parser.load_optimization_values()[0]) != 0))
         self.showEnergiesAction.setDisabled(not self.parser.load_energies().ok)
 
+        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
+
         s = time()
         # apply to graph
-        self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
+        # self.ui.log_file_text.setText("")
+        # self.ui.log_file_text.setText("".join(self.parser.lines))
+
         print('took: ', time()-s)
+        
         
     def populateTable(self, freq:np.ndarray, ints:np.ndarray):
         self.ui.spectrum_table.setRowCount(len(freq))
@@ -448,7 +459,9 @@ class SpectrumAnalyzer(QMainWindow):
         self.energy_dialog.show()
 
     def trigger_optm_dialog(self):
-        self.optm_dialog = OptimizationDialog()
+        self.optms = np.vstack(self.parser.load_optimization_values())
+
+        self.optm_dialog = OptimizationDialog(data=self.optms)
 
         self.optm_dialog.export_csv.clicked.connect(self.trigger_export_optm_data)
 
@@ -457,7 +470,6 @@ class SpectrumAnalyzer(QMainWindow):
 
         header = tb.horizontalHeader()
 
-        self.optms = np.vstack(self.parser.load_optimization_values())
 
         tb.setRowCount(self.optms.shape[1])
         tb.setColumnCount(self.optms.shape[0])
@@ -472,29 +484,27 @@ class SpectrumAnalyzer(QMainWindow):
         self.optm_dialog.show()
 
     def trigger_nmr_dialog(self):
-        self.nmr_dialog = NMRDialog()
         nmr_spectrum = self.parser.load_nmr_spectrum()
 
-        nmr_data = nmr_spectrum.spectrum_data
-        nmr_data = sorted(nmr_data, key=lambda e: e[0])
+        self.nmr_data = nmr_spectrum.spectrum_data
+        self.nmr_data = sorted(self.nmr_data, key=lambda e: e[0])
 
         x, y = nmr_spectrum.compute_continous_spectrum()
 
-        self.nmr_dialog.show_spectrum.clicked.connect(lambda e: 
-                self.trigger_show_spectrum(x, y, nmr_spectrum.sheilding, nmr_spectrum.deg)
-        )
+        self.nmr_dialog = NMRDialog(x=x, y=y, sheilding=nmr_spectrum.sheilding, deg=nmr_spectrum.deg)
+        self.nmr_dialog.export_btn.clicked.connect(self.trigger_export_nmr_data)
 
         tb = self.nmr_dialog.data_table
         tb.clearContents()
 
         header = tb.horizontalHeader()
 
-        tb.setRowCount(len(nmr_data))
-        tb.setColumnCount(len(nmr_data[0]))
+        tb.setRowCount(len(self.nmr_data))
+        tb.setColumnCount(len(self.nmr_data[0]))
 
-        tb.setHorizontalHeaderLabels(['Index', "Atom", "Sheilding", "Desheilding", "Degeneracy"])
+        tb.setHorizontalHeaderLabels([' Index ', " Atom ", " Sheilding ", " Desheilding ", " Degeneracy "])
 
-        for i, row in enumerate(nmr_data):
+        for i, row in enumerate(self.nmr_data):
             for j, val in enumerate(row):
                 tb.setItem(i, j, QTableWidgetItem(str(val)))
                 header.setSectionResizeMode(j, QHeaderView.ResizeToContents)
@@ -504,7 +514,12 @@ class SpectrumAnalyzer(QMainWindow):
     def trigger_export_optm_data(self):
         filename, _ = QFileDialog.getSaveFileName(filter="*.csv")
         if not filename: return
-        convert_to_csv(filename, self.optms.reshape(-1, 5).round(6))
+        convert_to_csv(['E ', 'RMS Force', "RMS Displ", "Max Force", "Max Displ"], filename, self.optms.reshape(-1, 5).round(6))
+
+    def trigger_export_nmr_data(self):
+        filename, _ = QFileDialog.getSaveFileName(filter="*.csv")
+        if not filename: return
+        convert_to_csv(filename, ['Index', 'Atom', "Sheidling", "Desheilding", "Degeneracy"], self.nmr_data)
 
     def trigger_show_spectrum(self, x, y, sheilding, deg):
         fig, ax = plt.subplots(nrows=1, figsize=(10, 4))
@@ -518,6 +533,7 @@ class SpectrumAnalyzer(QMainWindow):
         fig.tight_layout()
 
         fig.show()
+
 
     def load_and_render(self):
 
@@ -583,6 +599,7 @@ class SpectrumAnalyzer(QMainWindow):
             event.accept()
             if self.optm_dialog: self.optm_dialog.close()
             if self.energy_dialog: self.energy_dialog.close()
+            if self.nmr_dialog: self.nmr_dialog.close()
         elif reply == QMessageBox.Cancel:
             event.ignore()
         else:
