@@ -14,7 +14,6 @@ class MESSAGE:
     DEPOLAR_P       = " Depolar (P) -- "
     DEPOLAR_U       = " Depolar (U) -- "
     NMR_SHEILDING   = " Isotropic ="
-    UV_SIGNAL       = " Excited State   "
     ATOM_COUNT      = "Stoichiometry"
     VIBRATION_STATE = "Atom AN      X      Y      Z        X      Y      Z        X      Y      Z"
     GEOMETRY        = " Center     Atomic     Atomic              Coordinates (Angstroms)"
@@ -27,13 +26,22 @@ class MESSAGE:
     TOT_ENERGY      = "Predicted change in Energy="
     OPTMIZED_GEOM   = " Center     Atomic     Atomic              Coordinates (Angstroms)"
 
-    THERMAL_ENERGY      = " Thermal correction to Energy="
-    THERMAL_ENTHALPY    = " Thermal correction to Enthalpy="
-    THERMAL_GIBBS       = " Thermal correction to Gibbs Free Energy="
+    THERMAL_ENERGY          = " Thermal correction to Energy="
+    THERMAL_ENTHALPY        = " Thermal correction to Enthalpy="
+    THERMAL_GIBBS           = " Thermal correction to Gibbs Free Energy="
+
+    SUM_THERMAL_ENERGY      = " Sum of electronic and thermal Energies="
+    SUM_THERMAL_ENTHALPY    = " Sum of electronic and thermal Enthalpies="
+    SUM_THERMAL_GIBBS       = " Sum of electronic and thermal Free Energies="
+
     ZERO_POINT_CORR     = " Zero-point correction="
     ZERO_POINT_ENERGY   = " Sum of electronic and zero-point Energies="
 
-
+    UV_SIGNAL       = " Excited State "
+    UV_OSC_START    = "Ground to excited state Transition electric dipole moments (Au):"
+    UV_OSC_END      = "Ground to excited state transition velocity dipole Moments (Au):"
+    ECD_OSC_START   = "<0|del|b> * <b|rxdel|0>  (Au), Rotatory Strengths (R) in"
+    ECD_OSC_END     = "<0|r|b> * <b|rxdel|0>  (Au), Rotatory Strengths (R) in"
 
 EXPORT_FORMATS = [
     'PNG',

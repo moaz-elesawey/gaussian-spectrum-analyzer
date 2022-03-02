@@ -17,7 +17,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(850, 337)
+        Dialog.resize(941, 337)
         self.verticalLayout = QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.label = QLabel(Dialog)
@@ -43,8 +43,8 @@ class Ui_Dialog(object):
         self.energies_table.setHorizontalHeaderItem(2, __qtablewidgetitem2)
         __qtablewidgetitem3 = QTableWidgetItem()
         self.energies_table.setHorizontalHeaderItem(3, __qtablewidgetitem3)
-        if (self.energies_table.rowCount() < 5):
-            self.energies_table.setRowCount(5)
+        if (self.energies_table.rowCount() < 8):
+            self.energies_table.setRowCount(8)
         __qtablewidgetitem4 = QTableWidgetItem()
         self.energies_table.setVerticalHeaderItem(0, __qtablewidgetitem4)
         __qtablewidgetitem5 = QTableWidgetItem()
@@ -55,6 +55,12 @@ class Ui_Dialog(object):
         self.energies_table.setVerticalHeaderItem(3, __qtablewidgetitem7)
         __qtablewidgetitem8 = QTableWidgetItem()
         self.energies_table.setVerticalHeaderItem(4, __qtablewidgetitem8)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        self.energies_table.setVerticalHeaderItem(5, __qtablewidgetitem9)
+        __qtablewidgetitem10 = QTableWidgetItem()
+        self.energies_table.setVerticalHeaderItem(6, __qtablewidgetitem10)
+        __qtablewidgetitem11 = QTableWidgetItem()
+        self.energies_table.setVerticalHeaderItem(7, __qtablewidgetitem11)
         self.energies_table.setObjectName(u"energies_table")
         font1 = QFont()
         font1.setFamily(u"Noto Mono")
@@ -90,14 +96,20 @@ class Ui_Dialog(object):
         ___qtablewidgetitem3 = self.energies_table.horizontalHeaderItem(3)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("Dialog", u"eV", None));
         ___qtablewidgetitem4 = self.energies_table.verticalHeaderItem(0)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Dialog", u"Energy=", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Dialog", u"Thermal correction to Energy=", None));
         ___qtablewidgetitem5 = self.energies_table.verticalHeaderItem(1)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Dialog", u"Enthalpy=", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Dialog", u"Thermal correction to Enthalpy=", None));
         ___qtablewidgetitem6 = self.energies_table.verticalHeaderItem(2)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Dialog", u"Gibbs Free Energy=", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("Dialog", u"Thermal correction to Gibbs Free Energy=", None));
         ___qtablewidgetitem7 = self.energies_table.verticalHeaderItem(3)
         ___qtablewidgetitem7.setText(QCoreApplication.translate("Dialog", u"Zero-point correction=", None));
         ___qtablewidgetitem8 = self.energies_table.verticalHeaderItem(4)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("Dialog", u"Zero-point Energies=", None));
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and zero-point Energies=", None));
+        ___qtablewidgetitem9 = self.energies_table.verticalHeaderItem(5)
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and thermal Energies=", None));
+        ___qtablewidgetitem10 = self.energies_table.verticalHeaderItem(6)
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and thermal Enthalpies=", None));
+        ___qtablewidgetitem11 = self.energies_table.verticalHeaderItem(7)
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and thermal Free Energies=", None));
     # retranslateUi
 

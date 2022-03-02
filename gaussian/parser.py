@@ -1,5 +1,6 @@
 import re
-from numpy import array
+from numpy import array, hstack
+
 from pprint import pprint
 from time import time
 from gaussian.energy import Energy
@@ -124,17 +125,62 @@ class Parser:
 
         return nmr_spectrum
 
-    def load_uv_spectrum(self):
-        uv_spectrum = []
+    def load_wavelengths(self):
+        wavelengths = []
 
         for l in self.lines:
             if MESSAGE.UV_SIGNAL in l:
                 trimmed_l = self._RE_COMBINE_WHITESPACE.sub(" ", l).strip().lstrip()
                 data = trimmed_l.split(' ')
                 # print(data)
-                uv_spectrum.append(float(data[6]))
+                wavelengths.append(float(data[6]))
 
-        return uv_spectrum
+        return wavelengths
+
+    def format_uv_spectrum(self, table):
+        osc = []
+
+        for l in table:
+            l = self._RE_COMBINE_WHITESPACE.sub(",", l.strip().lstrip()).split(',')
+            osc.append(float(l[-1].strip()))
+
+        return osc
+
+    def load_uv_spectrum(self):
+        uv_spectrum = []
+
+        for idx, l in enumerate(self.lines):
+            if MESSAGE.UV_OSC_START in l:
+
+                for nl in self.lines[idx:]:
+                    if MESSAGE.UV_OSC_END in nl:
+                        break
+                    uv_spectrum.append(nl)
+
+        return self.format_uv_spectrum(uv_spectrum[2:])
+
+    def load_ecd_spectrum(self):
+        ecd_spectrum = []
+
+        for idx, l in enumerate(self.lines):
+            if MESSAGE.ECD_OSC_START in l:
+                
+                for nl in self.lines[idx:]:
+                    if MESSAGE.ECD_OSC_END in nl:
+                        break
+                    ecd_spectrum.append(nl)
+
+        return self.format_uv_spectrum(ecd_spectrum[3:])
+
+
+    def load_uv_ecd(self):
+        wavelengths = array(self.load_wavelengths()).reshape(-1, 1)
+        uv_vis = array(self.load_uv_spectrum()).reshape(-1, 1)
+        ecd = array(self.load_ecd_spectrum()).reshape(-1, 1)
+
+        return hstack((wavelengths, uv_vis, ecd))
+
+
 
     def get_atoms_count(self):
         for l in self.lines:
@@ -284,6 +330,9 @@ class Parser:
         thermal_energy = None
         thermal_enthalpy = None
         thermal_gibbs = None
+        sum_thermal_energy = None
+        sum_thermal_enthalpy = None
+        sum_thermal_gibbs = None
         zero_point_energyies = None
 
         for l in self.lines:
@@ -293,11 +342,20 @@ class Parser:
                 thermal_enthalpy = self.format_thermal_energy(l)
             elif MESSAGE.THERMAL_GIBBS in l:
                 thermal_gibbs = self.format_thermal_energy(l)
+            
+            elif MESSAGE.SUM_THERMAL_ENERGY in l:
+                sum_thermal_energy = self.format_thermal_energy(l)
+            elif MESSAGE.SUM_THERMAL_ENTHALPY in l:
+                sum_thermal_enthalpy = self.format_thermal_energy(l)
+            elif MESSAGE.SUM_THERMAL_GIBBS in l:
+                sum_thermal_gibbs = self.format_thermal_energy(l)
+
             elif MESSAGE.ZERO_POINT_CORR in l:
                 zero_point_correction = self.format_thermal_energy(l)
             elif MESSAGE.ZERO_POINT_ENERGY in l:
                 zero_point_energyies = self.format_thermal_energy(l)
         
         return Energy(thermal_energy, thermal_enthalpy, thermal_gibbs, 
-                      zero_point_correction, zero_point_energyies
+                      zero_point_correction, zero_point_energyies,
+                      sum_thermal_energy, sum_thermal_enthalpy, sum_thermal_gibbs
                 )

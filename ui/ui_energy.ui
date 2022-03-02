@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
+    <width>941</width>
     <height>337</height>
    </rect>
   </property>
@@ -69,17 +69,17 @@
      </attribute>
      <row>
       <property name="text">
-       <string>Energy=</string>
+       <string>Thermal correction to Energy=</string>
       </property>
      </row>
      <row>
       <property name="text">
-       <string>Enthalpy=</string>
+       <string>Thermal correction to Enthalpy=</string>
       </property>
      </row>
      <row>
       <property name="text">
-       <string>Gibbs Free Energy=</string>
+       <string>Thermal correction to Gibbs Free Energy=</string>
       </property>
      </row>
      <row>
@@ -89,7 +89,22 @@
      </row>
      <row>
       <property name="text">
-       <string>Zero-point Energies=</string>
+       <string>Sum of electronic and zero-point Energies=</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Sum of electronic and thermal Energies=</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Sum of electronic and thermal Enthalpies=</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Sum of electronic and thermal Free Energies=</string>
       </property>
      </row>
      <column>

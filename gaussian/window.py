@@ -15,7 +15,7 @@ from ui import Ui_SpectrumAnalyzer
 from gaussian import *
 from .writer import Writer
 
-from .dialogs import NMRDialog, StyleDialog, EnergyDialog, OptimizationDialog
+from .dialogs import NMRDialog, StyleDialog, EnergyDialog, OptimizationDialog, UVDialog
 
 from gaussian.togglers import (
     toggle_broadening, toggle_grid,
@@ -160,6 +160,9 @@ class SpectrumAnalyzer(QMainWindow):
         self.openAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'open-file.png')))
         self.openAction.setShortcut('Ctrl+o')
 
+        self.newWindowAction = QAction("&New Window")
+        self.newWindowAction.setShortcut("Ctrl+n")
+
         self.saveAction = QAction("&Export Graph")
         self.saveAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'save-image.png')))
         self.saveAction.setShortcut("Ctrl+e")
@@ -204,6 +207,12 @@ class SpectrumAnalyzer(QMainWindow):
         self.showNMRAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'nmr-icon.png')))
         self.showNMRAction.setShortcut("Ctrl+Shift+n")
 
+        self.showUVAction = QAction("&Show UV and ECD Spectrums")
+        self.showUVAction.setShortcut("Ctrl+Shift+u")
+        self.showUVAction.setIcon(QIcon(os.path.join(BASE_DIR, PATHS['icons'], 'uv-icon.png')))
+
+        self.fileMenu.addAction(self.newWindowAction)
+        self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.openAction)
         self.fileMenu.addAction(self.saveAction)
         self.fileMenu.addSeparator()
@@ -220,8 +229,8 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.resultsMenu.addAction(self.showEnergiesAction)
         self.resultsMenu.addAction(self.showOptmAction)
-
         self.resultsMenu.addAction(self.showNMRAction)
+        self.resultsMenu.addAction(self.showUVAction)
 
         self.toolBar.addAction(self.openAction)
         self.toolBar.addAction(self.saveAction)
@@ -236,6 +245,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.toolBar.addAction(self.showEnergiesAction)
         self.toolBar.addAction(self.showOptmAction)
         self.toolBar.addAction(self.showNMRAction)
+        self.toolBar.addAction(self.showUVAction)
 
         self.addToolBar(self.toolBar)
 
@@ -290,9 +300,13 @@ class SpectrumAnalyzer(QMainWindow):
         self.ui.optimization_list.currentRowChanged.connect(self.trigger_optimization_select)
         self.ui.spectrumType.currentIndexChanged.connect(self.trigger_change_spectrum_type)
 
+        self.changeStyleAction.triggered.connect(lambda e: trigger_change_style(self))
         self.showEnergiesAction.triggered.connect(self.trigger_energy_dialog)
         self.showOptmAction.triggered.connect(self.trigger_optm_dialog)
         self.showNMRAction.triggered.connect(self.trigger_nmr_dialog)
+        self.showUVAction.triggered.connect(self.trigger_uv_dialog)
+
+        self.newWindowAction.triggered.connect(self.trigger_new_window)
     
     def trigger_open_file(self):
         filename, _  = QFileDialog.getOpenFileName(self, "Open Gaussian File",  '',"Gaussian files (*.LOG)")
@@ -352,6 +366,7 @@ class SpectrumAnalyzer(QMainWindow):
         self.showEnergiesAction.setDisabled(state)
         self.showOptmAction.setDisabled(state)
         self.showNMRAction.setDisabled(state)
+        self.showUVAction.setDisabled(state)
 
     def applyLoadedData(self, filename):
         self.parser: Parser = Parser(filename)
@@ -362,10 +377,12 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.populateOptimization()
 
-
         self.showNMRAction.setDisabled(not self.parser.load_nmr_spectrum().ok)
         self.showOptmAction.setDisabled(not (len(self.parser.load_optimization_values()[0]) != 0))
+        self.showUVAction.setDisabled(not (self.parser.load_uv_ecd().shape[0] != 0))
         self.showEnergiesAction.setDisabled(not self.parser.load_energies().ok)
+        self.ui.spectrums_select.setDisabled(not (self.parser.freq.shape[0] != 0))
+        self.ui.spectrumType.setDisabled(not (self.parser.freq.shape[0] != 0))
 
         self.spectrumGraph.PlotData(self.parser.freq, self.parser.ir_ints, self.p)
 
@@ -373,11 +390,10 @@ class SpectrumAnalyzer(QMainWindow):
         # apply to graph
         writer = Writer(self.parser)
 
-        self.ui.log_file_text.setText("")
-        self.ui.log_file_text.setText(writer.generate_doc())
+        self.ui.log_file_text.clear()
+        self.ui.log_file_text.setPlainText("".join(self.parser.lines))
 
         print('took: ', time()-s)
-        
         
     def populateTable(self, freq:np.ndarray, ints:np.ndarray):
         self.ui.spectrum_table.setRowCount(len(freq))
@@ -455,7 +471,6 @@ class SpectrumAnalyzer(QMainWindow):
                 self.energy_dialog.energies_table.setItem(i, j, QTableWidgetItem("{:.5f}".format(e)))
             header.setSectionResizeMode(j, QHeaderView.ResizeToContents)
 
-            
         self.energy_dialog.show()
 
     def trigger_optm_dialog(self):
@@ -469,7 +484,6 @@ class SpectrumAnalyzer(QMainWindow):
         tb.clearContents()
 
         header = tb.horizontalHeader()
-
 
         tb.setRowCount(self.optms.shape[1])
         tb.setColumnCount(self.optms.shape[0])
@@ -511,6 +525,23 @@ class SpectrumAnalyzer(QMainWindow):
         
         self.nmr_dialog.show()
 
+    def trigger_uv_dialog(self):
+
+        self.uv_ecd = self.parser.load_uv_ecd()
+        self.uv_dialog = UVDialog(data=self.uv_ecd)
+        self.uv_dialog.export_to_csv.clicked.connect(self.trigger_export_uv_data)
+
+        self.uv_dialog.data_table.setRowCount(self.uv_ecd.shape[0])
+        self.uv_dialog.data_table.setColumnCount(self.uv_ecd.shape[1])
+
+        self.uv_dialog.data_table.setHorizontalHeaderLabels(['Wavelength', 'epsilon', "Δepsilon"])
+
+        for i, row in enumerate(self.uv_ecd):
+            for j, val in enumerate(row):
+                self.uv_dialog.data_table.setItem(i, j, QTableWidgetItem("{:.4f}".format(val)))
+        
+        self.uv_dialog.show()
+
     def trigger_export_optm_data(self):
         filename, _ = QFileDialog.getSaveFileName(filter="*.csv")
         if not filename: return
@@ -521,7 +552,12 @@ class SpectrumAnalyzer(QMainWindow):
         if not filename: return
         convert_to_csv(filename, ['Index', 'Atom', "Sheidling", "Desheilding", "Degeneracy"], self.nmr_data)
 
-    def trigger_show_spectrum(self, x, y, sheilding, deg):
+    def trigger_export_uv_data(self):
+        filename, _ = QFileDialog.getSaveFileName(filter="*.csv")
+        if not filename: return
+        convert_to_csv(filename, ['Wavelength(nm)', "epsilon", 'Δepsilon'], self.uv_ecd)
+
+    def trigger_show_nmr_spectrum(self, x, y, sheilding, deg):
         fig, ax = plt.subplots(nrows=1, figsize=(10, 4))
         ax.vlines(sheilding, ymin=0, ymax=deg, color='k', lw=1)
         ax.plot(x, y, color='#FF0000', ls='-')
@@ -533,6 +569,11 @@ class SpectrumAnalyzer(QMainWindow):
         fig.tight_layout()
 
         fig.show()
+
+
+    def trigger_new_window(self):
+        new_window = SpectrumAnalyzer()
+        new_window.show()
 
 
     def load_and_render(self):

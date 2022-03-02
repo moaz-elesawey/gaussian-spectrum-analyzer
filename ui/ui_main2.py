@@ -151,12 +151,13 @@ class Ui_SpectrumAnalyzer(object):
         self.log_file_ui.setSpacing(0)
         self.log_file_ui.setObjectName(u"log_file_ui")
         self.log_file_ui.setContentsMargins(0, 0, 0, 0)
-        self.log_file_text = QTextBrowser(self.log_file_frame)
+        self.log_file_text = QPlainTextEdit(self.log_file_frame)
         self.log_file_text.setObjectName(u"log_file_text")
         font3 = QFont()
         font3.setFamily(u"Courier")
         font3.setPointSize(12)
         self.log_file_text.setFont(font3)
+        self.log_file_text.setReadOnly(True)
 
         self.log_file_ui.addWidget(self.log_file_text)
 
@@ -664,12 +665,8 @@ class Ui_SpectrumAnalyzer(object):
         self.loaded_file_name.setText("")
         self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.spectrumFrame2), QCoreApplication.translate("SpectrumAnalyzer", u"Spectrum Graph", None))
         self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.render_frame), QCoreApplication.translate("SpectrumAnalyzer", u"3D Optimization", None))
-        self.log_file_text.setHtml(QCoreApplication.translate("SpectrumAnalyzer", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Courier'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;\"><br /></p></body></html>", None))
-        self.log_file_text.setPlaceholderText(QCoreApplication.translate("SpectrumAnalyzer", u"LOG File", None))
+        self.log_file_text.setDocumentTitle("")
+        self.log_file_text.setPlainText("")
         self.spectrumTabWidget.setTabText(self.spectrumTabWidget.indexOf(self.log_file_frame), QCoreApplication.translate("SpectrumAnalyzer", u"LOG File", None))
         self.zoom_out_btn.setText("")
         self.tight_graph_btn.setText("")

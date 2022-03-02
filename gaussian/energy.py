@@ -1,13 +1,16 @@
 
 class Energy:
-    def __init__(self, E, H, G, Z, ZE) -> None:
+    def __init__(self, E, H, G, Z, ZE, SE, SH, SG) -> None:
         self.E = E
         self.H = H
         self.G = G
         self.Z = Z
         self.ZE = ZE
+        self.SE = SE
+        self.SH = SH
+        self.SG = SG
 
-        self.energies = [self.E, self.H, self.G, self.Z, self.ZE]
+        self.energies = [self.E, self.H, self.G, self.Z, self.ZE, self.SE, self.SH, self.SG]
 
     @property
     def au(self):

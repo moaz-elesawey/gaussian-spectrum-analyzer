@@ -12,12 +12,12 @@ class Writer:
         optms = self.parser.load_optimized_geometry()
         
         for idx, opt in enumerate(optms):
-            self.doc.append(" "+"="*71+"\n")
+            self.doc.append(" "+"-"*71+"\n")
             self.doc.append(f"#\t\t\t Optimization Structure [{idx+1}] \t\t\t#"+"\n")
-            self.doc.append(" "+"="*71+"\n")
+            self.doc.append(" "+"-"*71+"\n")
             for i in opt:
-                self.doc.append(f"| \t {i.index} \t {i.atomic_number} \t {i.x} \t {i.y} \t {i.z} \t |"+"\n")
-            self.doc.append(" "+"="*71+"\n")
+                self.doc.append(f"! \t {i.index} \t {i.atomic_number} \t {i.x} \t {i.y} \t {i.z} \t !"+"\n")
+            self.doc.append(" "+"-"*71+"\n")
 
     def generate_nmr_values(self):
         nmr = self.parser.load_nmr_spectrum()
@@ -26,12 +26,12 @@ class Writer:
     def generate_initial_parameter(self):
         poss = self.parser.get_position_table()[0]
 
-        self.doc.append(" "+"="*71+"\n")
+        self.doc.append(" "+"-"*71+"\n")
         self.doc.append(f"#\t\t\t Initial Parameters \t\t\t\t#"+"\n")
-        self.doc.append(" "+"="*71+"\n")
+        self.doc.append(" "+"-"*71+"\n")
         for i in poss:
-            self.doc.append(f"| \t {i.index} \t {i.atomic_number} \t {i.x} \t {i.y} \t {i.z} \t |"+"\n")
-        self.doc.append(" "+"="*71+"\n")
+            self.doc.append(f"! \t {i.index} \t {i.atomic_number} \t {i.x} \t {i.y} \t {i.z} \t !"+"\n")
+        self.doc.append(" "+"-"*71+"\n")
 
     def generate_bonds(self):
         bonds = self.parser.load_geometry_table()
