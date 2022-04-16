@@ -96,20 +96,20 @@ class Ui_Dialog(object):
         ___qtablewidgetitem3 = self.energies_table.horizontalHeaderItem(3)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("Dialog", u"eV", None));
         ___qtablewidgetitem4 = self.energies_table.verticalHeaderItem(0)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Dialog", u"Thermal correction to Energy=", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Dialog", u"Energy=", None));
         ___qtablewidgetitem5 = self.energies_table.verticalHeaderItem(1)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Dialog", u"Thermal correction to Enthalpy=", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Dialog", u"Enthalpy=", None));
         ___qtablewidgetitem6 = self.energies_table.verticalHeaderItem(2)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Dialog", u"Thermal correction to Gibbs Free Energy=", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("Dialog", u"Gibbs Free Energy=", None));
         ___qtablewidgetitem7 = self.energies_table.verticalHeaderItem(3)
         ___qtablewidgetitem7.setText(QCoreApplication.translate("Dialog", u"Zero-point correction=", None));
         ___qtablewidgetitem8 = self.energies_table.verticalHeaderItem(4)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and zero-point Energies=", None));
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("Dialog", u"Sum of zero-point Energies=", None));
         ___qtablewidgetitem9 = self.energies_table.verticalHeaderItem(5)
-        ___qtablewidgetitem9.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and thermal Energies=", None));
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("Dialog", u"Sum of thermal Energies=", None));
         ___qtablewidgetitem10 = self.energies_table.verticalHeaderItem(6)
-        ___qtablewidgetitem10.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and thermal Enthalpies=", None));
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("Dialog", u"Sum of thermal Enthalpies=", None));
         ___qtablewidgetitem11 = self.energies_table.verticalHeaderItem(7)
-        ___qtablewidgetitem11.setText(QCoreApplication.translate("Dialog", u"Sum of electronic and thermal Free Energies=", None));
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("Dialog", u"Sum of thermal Free Energies=", None));
     # retranslateUi
 

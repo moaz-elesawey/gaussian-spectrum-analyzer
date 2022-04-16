@@ -34,7 +34,7 @@ from .triggers import (
     trigger_table_selection, trigger_tight_layout
 )
 
-from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR, SPECTRUM_TYPES, convert_to_csv, save_figure
+from utils import EXPORT_FORMATS, LINESTYLES, PATHS, BASE_DIR, SPECTRUM_TYPES, convert_to_csv, create_gl_bond, save_figure
 
 import pyqtgraph.opengl as gl
 import numpy as np
@@ -89,7 +89,7 @@ class SpectrumAnalyzer(QMainWindow):
 
         self.setStyleSheet("QFrame#spectrumGraph{background: rgb(100, 0, 0);}")
 
-        self.viewer = gl.GLViewWidget()
+        self.viewer = gl.GLViewWidget(rotationMethod='quaternion')
         self.viewer_grid = gl.GLGridItem()
 
         self.style_dialog = StyleDialog()
@@ -136,8 +136,9 @@ class SpectrumAnalyzer(QMainWindow):
         self.style_dialog.spike_shape_select.addItems(LINESTYLES)
         self.ui.spectrumType.addItems(SPECTRUM_TYPES)
 
-        self.viewer.setWindowTitle('STL Viewer')
         self.viewer.setCameraPosition(distance=25)
+        
+        self.viewer.setBackgroundColor("#49a2b6")
         self.ui.renderLayout.addWidget(self.viewer)
         
         self.ui.start_animation_btn.setMinimumWidth(0)
@@ -422,9 +423,9 @@ class SpectrumAnalyzer(QMainWindow):
             for idx, b in enumerate(self.bonds):
                 l = selected_optm[b[0]-1]
                 r = selected_optm[b[1]-1]
-                plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=False, color="#dcdfe0")
-                self.viewer.addItem(plt)
-                self.compound_bonds.append(plt)
+                bond = create_gl_bond(l, r)
+                self.viewer.addItem(bond)
+                self.compound_bonds.append(bond)
 
             for optm_step in selected_optm:
                 md = gl.MeshData.sphere(rows=40, cols=40)
@@ -583,7 +584,6 @@ class SpectrumAnalyzer(QMainWindow):
         self.compound = []
         self.compound_bonds = []
 
-        self.viewer.setBackgroundColor("#333333")
         self.viewer.setCameraPosition(distance=25)
 
         geom_tables = np.array(self.parser.get_position_table())
@@ -595,9 +595,9 @@ class SpectrumAnalyzer(QMainWindow):
         for idx, b in enumerate(self.bonds):
             l = struct1[b[0]-1]
             r = struct1[b[1]-1]
-            plt = gl.GLLinePlotItem(pos=np.array([l.pos, r.pos]), width=5, antialias=False, color="#dcdfe0")
-            self.viewer.addItem(plt)
-            self.compound_bonds.append(plt)
+            bond = create_gl_bond(l, r)
+            self.viewer.addItem(bond)
+            self.compound_bonds.append(bond)
 
         for atom in struct1:
             md = gl.MeshData.sphere(rows=40, cols=40)

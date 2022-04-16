@@ -1,7 +1,10 @@
 import csv
 import importlib
+from math import atan2, hypot, pi, sqrt
 import os
-from numpy import arange
+from numpy import arange, array
+from pyqtgraph.opengl import MeshData, GLMeshItem
+
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -125,3 +128,29 @@ def convert_to_csv(filename, header, data):
         writer.writerow(header)
         writer.writerows(data)
 
+
+def cross(a, b):
+    return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+def create_gl_bond(atom1, atom2):
+    v = [atom2.x-atom1.x, atom2.y-atom1.y, atom2.z-atom1.z]
+    height = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+    axis = (1, 0, 0) if hypot(v[0], v[1]) < 0.001 else cross(v, (0, 0, 1))
+    angle = -atan2(hypot(v[0], v[1]), v[2])*180/pi
+    
+    shader = 'shaded'
+    radius = [0.1, 0.1]
+    glOptions = 'opaque'
+    col = array([.5,.5,.5,1])
+
+    # s = time()
+
+    md = MeshData.cylinder(rows=20, cols=20, radius=radius, length=height)
+    m3 = GLMeshItem(meshdata=md, smooth=False, 
+            drawFaces=True, drawEdges=False, shader=shader,
+            edgeColor=col, color=col, glOptions=glOptions, antialias=True)
+
+    m3.rotate(angle, *axis)
+    m3.translate(*atom1.pos)
+
+    return m3
