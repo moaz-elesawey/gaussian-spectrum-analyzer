@@ -7,6 +7,7 @@ Spectrum Analyzer or Gaussian Spectrum Analyzer is a GUI application used to vis
 
 ## Install
 ```sh
+$ conda create -n gsa python=3.8
 $ pip install -r requirements.txt
 ```
 
@@ -15,7 +16,12 @@ $ pip install -r requirements.txt
 $ python run.py
 ```
 
+
 ## Demo
+### **Video**
+You can watch the video of explaing the usage of the GSA Programm [Here](https://drive.google.com/file/d/1TuUwyX8w1uK_QHMC48lDTRpCNqtSR4Nw/view?usp=sharing)
+
+
 ### IR Spectrum
 ![screenshot_1](./screenshots/screenshot_1.png)
 
