@@ -1,6 +1,8 @@
 # Gaussian Spectrum Analyzer
 Spectrum Analyzer or Gaussian Spectrum Analyzer is a GUI application used to visualize and create reports of the Gaussian View and Gaussian W calculations created in Python and Qt Library.
 
+This project is part of a research paper in my Graduation Project called: **Theoretical Spectral Analysis of Ceftriaxone** which can be found [Here](https://www.researchgate.net/publication/361820687_Theoretical_spectral_analysis_of_ceftriaxone)
+
 ## Requirements
  - Qt 5
  - Python 3.7 or higher
